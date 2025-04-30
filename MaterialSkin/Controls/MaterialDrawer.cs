@@ -29,8 +29,8 @@
                 {
                     _showIconsWhenHidden = value;
                     UpdateTabRects();
-                    preProcessIcons();
-                    showHideAnimation();
+                    PreProcessIcons();
+                    ShowHideAnimation();
                     Paint(new PaintEventArgs(CreateGraphics(), ClientRectangle));
                     DrawerShowIconsWhenHiddenChanged?.Invoke(this);
                 }
@@ -74,7 +74,7 @@
             set
             {
                 _useColors = value;
-                preProcessIcons();
+                PreProcessIcons();
                 Invalidate();
             }
         }
@@ -91,7 +91,7 @@
             set
             {
                 _highlightWithAccent = value;
-                preProcessIcons();
+                PreProcessIcons();
                 Invalidate();
             }
         }
@@ -162,7 +162,7 @@
                     return;
 
                 UpdateTabRects();
-                preProcessIcons();
+                PreProcessIcons();
 
                 // Other helpers
 
@@ -187,7 +187,7 @@
             }
         }
 
-        private void preProcessIcons()
+        private void PreProcessIcons()
         {
             // pre-process and pre-allocate texture brushes (icons)
             if (_baseTabControl == null || _baseTabControl.TabCount == 0 || _baseTabControl.ImageList == null || _drawerItemRects == null || _drawerItemRects.Count == 0)
@@ -333,7 +333,7 @@
             _showHideAnimManager.OnAnimationProgress += sender =>
             {
                 Invalidate();
-                showHideAnimation();
+                ShowHideAnimation();
             };
             _showHideAnimManager.OnAnimationFinished += sender =>
             {
@@ -351,12 +351,12 @@
 
             SkinManager.ColorSchemeChanged += sender =>
             {
-                preProcessIcons();
+                PreProcessIcons();
             };
 
             SkinManager.ThemeChanged += sender =>
             {
-                preProcessIcons();
+                PreProcessIcons();
             };
 
             _clickAnimManager = new AnimationManager
@@ -396,13 +396,13 @@
             drawerItemHeight = TAB_HEADER_PADDING * 2 - SkinManager.FORM_PADDING / 2;
             MinWidth = (int)(SkinManager.FORM_PADDING * 1.5 + drawerItemHeight);
             _showHideAnimManager.SetProgress(_isOpen ? 0 : 1);
-            showHideAnimation();
+            ShowHideAnimation();
             Invalidate();
 
             base.InitLayout();
         }
 
-        private void showHideAnimation()
+        private void ShowHideAnimation()
         {
             var showHideAnimProgress = _showHideAnimManager.GetProgress();
             if (_showHideAnimManager.IsAnimating())
@@ -488,7 +488,7 @@
                 var currentTabIndex = _baseTabControl.TabPages.IndexOf(tabPage);
 
                 // Background
-                Brush bgBrush = new SolidBrush(Color.FromArgb(CalculateAlpha(60, 0, currentTabIndex, clickAnimProgress, 1 - showHideAnimProgress),
+                Brush bgBrush = new SolidBrush(Color.FromArgb(CalculateAlpha(60, 0, currentTabIndex, clickAnimProgress),
                     UseColors ? _backgroundWithAccent ? SkinManager.ColorScheme.AccentColor : SkinManager.ColorScheme.LightPrimaryColor : // using colors
                     _backgroundWithAccent ? SkinManager.ColorScheme.AccentColor : // defaul accent
                     SkinManager.Theme == MaterialSkinManager.Themes.LIGHT ? SkinManager.ColorScheme.PrimaryColor : // default light
@@ -518,18 +518,25 @@
                 if (_baseTabControl.ImageList != null && !String.IsNullOrEmpty(tabPage.ImageKey))
                 {
                     var ik = string.Concat(tabPage.ImageKey, "_", tabPage.Name);
-                    Rectangle iconRect = new Rectangle(
-                        _drawerItemRects[currentTabIndex].X + (drawerItemHeight >> 1) - (iconsSize[ik].Width >> 1),
-                        _drawerItemRects[currentTabIndex].Y + (drawerItemHeight >> 1) - (iconsSize[ik].Height >> 1),
-                        iconsSize[ik].Width, iconsSize[ik].Height);
-                    
                     if (ShowIconsWhenHidden)
                     {
                         iconsBrushes[ik].TranslateTransform(dx, 0);
                         iconsSelectedBrushes[ik].TranslateTransform(dx, 0);
                     }
-
-                    g.FillRectangle(currentTabIndex == _baseTabControl.SelectedIndex ? iconsSelectedBrushes[ik] : iconsBrushes[ik], iconRect);
+                    if (tabPage is MaterialTabPage && !(tabPage as MaterialTabPage).DrawIconSilhouette)
+                    {
+                        g.DrawImage(_baseTabControl.ImageList.Images[tabPage.ImageKey],
+                            _drawerItemRects[currentTabIndex].X + (drawerItemHeight >> 1) - (iconsSize[ik].Width >> 1),
+                            _drawerItemRects[currentTabIndex].Y + (drawerItemHeight >> 1) - (iconsSize[ik].Height >> 1));
+                    }
+                    else
+                    {
+                        Rectangle iconRect = new Rectangle(
+                            _drawerItemRects[currentTabIndex].X + (drawerItemHeight >> 1) - (iconsSize[ik].Width >> 1),
+                            _drawerItemRects[currentTabIndex].Y + (drawerItemHeight >> 1) - (iconsSize[ik].Height >> 1),
+                            iconsSize[ik].Width, iconsSize[ik].Height);
+                        g.FillRectangle(currentTabIndex == _baseTabControl.SelectedIndex ? iconsSelectedBrushes[ik] : iconsBrushes[ik], iconRect);
+                    }
                 }
             }
 
@@ -604,7 +611,7 @@
             return secondaryA + (int)((primaryA - secondaryA) * clickAnimProgress);
         }
 
-        private int CalculateAlpha(int primaryA, int secondaryA, int tabIndex, double clickAnimProgress, double showHideAnimProgress)
+        private int CalculateAlpha(int primaryA, int secondaryA, int tabIndex, double clickAnimProgress)
         {
             if (tabIndex == _baseTabControl.SelectedIndex && !_clickAnimManager.IsAnimating())
             {

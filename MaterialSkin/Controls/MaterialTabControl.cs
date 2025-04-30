@@ -3,13 +3,19 @@
     using System;
     using System.ComponentModel;
     using System.Windows.Forms;
+    using static System.Windows.Forms.TabControl;
 
     public class MaterialTabControl : TabControl, IMaterialControl
     {
         public MaterialTabControl()
         {
             Multiline = true;
+            tabCollection = new MaterialTabPageCollection(this);
         }
+
+        private readonly MaterialTabPageCollection tabCollection;
+
+        public new MaterialTabPageCollection TabPages => tabCollection;
 
         [Browsable(false)]
         public int Depth { get; set; }
@@ -33,4 +39,13 @@
             e.Control.BackColor = System.Drawing.Color.White;
         }
     }
+
+
+    public class MaterialTabPageCollection : TabPageCollection
+    {
+        public MaterialTabPageCollection(TabControl owner) : base(owner)
+        {
+        }
+    }
+
 }
