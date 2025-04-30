@@ -1,7 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-
-namespace MaterialSkinExample
+﻿namespace MaterialSkinExample
 {
     internal static class Program
     {

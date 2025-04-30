@@ -13,12 +13,14 @@
         }
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Depth { get; set; }
 
         [Browsable(false)]
         public MaterialSkinManager SkinManager => MaterialSkinManager.Instance;
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MouseState MouseState { get; set; }
 
         protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
@@ -28,7 +30,7 @@
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            var doneProgress = (int)(Width * ((double)Value / Maximum));
+            int doneProgress = (int)(Width * ((double)Value / Maximum));
             e.Graphics.FillRectangle(Enabled ? 
                 SkinManager.ColorScheme.PrimaryBrush :
                 new SolidBrush(DrawHelper.BlendColor(SkinManager.ColorScheme.PrimaryColor, SkinManager.SwitchOffDisabledThumbColor, 197)),

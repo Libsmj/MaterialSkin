@@ -1,5 +1,7 @@
 ﻿namespace MaterialSkin
 {
+    using System.ComponentModel;
+
     /// <summary>
     /// Defines the <see cref="IMaterialControl" />
     /// </summary>
@@ -8,6 +10,8 @@
         /// <summary>
         /// Gets or sets the Depth
         /// </summary>
+        /// 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         int Depth { get; set; }
 
         /// <summary>

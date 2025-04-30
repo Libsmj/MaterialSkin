@@ -7,6 +7,7 @@
     using System.Drawing.Drawing2D;
     using System.Windows.Forms;
     using System.Runtime.InteropServices;
+    using MaterialSkin;
 
     public class MaterialSnackBar : MaterialForm
     {
@@ -16,10 +17,10 @@
         private const int BUTTON_PADDING = 8;
         private const int BUTTON_HEIGHT = 36;
 
-        private MaterialButton _actionButton = new MaterialButton();
-        private Timer _duration = new Timer();      // Timer that checks when the drop down is fully visible
+        private readonly MaterialButton _actionButton = new MaterialButton();
+        private readonly Timer _duration = new Timer();      // Timer that checks when the drop down is fully visible
 
-        private AnimationManager _AnimationManager;
+        private readonly AnimationManager _AnimationManager;
         private bool _closingAnimationDone = false;
         private bool _useAccentColor;
         private bool CloseAnimation = false;
@@ -32,14 +33,12 @@
 
         #endregion
 
-
         [Category("Material Skin"), DefaultValue(false), DisplayName("Use Accent Color")]
         public bool UseAccentColor
         {
             get { return _useAccentColor; }
             set { _useAccentColor = value; Invalidate(); }
         }
-
 
         /// <summary>
         /// Get or Set SnackBar show duration in milliseconds
@@ -135,19 +134,21 @@
             this.ActionButtonText = ActionButtonText;
             this.UseAccentColor = UseAccentColor;
             Height = 48;
-            MinimumSize = new System.Drawing.Size(344, 48);
-            MaximumSize = new System.Drawing.Size(568, 48);
+            MinimumSize = new Size(344, 48);
+            MaximumSize = new Size(568, 48);
 
             this.ShowActionButton = ShowActionButton;
 
-            Region = System.Drawing.Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, 6, 6));
+            Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, 6, 6));
 
-            _AnimationManager = new AnimationManager();
-            _AnimationManager.AnimationType = AnimationType.EaseOut;
-            _AnimationManager.Increment = 0.03;
-            _AnimationManager.OnAnimationProgress += _AnimationManager_OnAnimationProgress;
+            _AnimationManager = new AnimationManager
+            {
+                AnimationType = AnimationType.EaseOut,
+                Increment = 0.03
+            };
+            _AnimationManager.OnAnimationProgress += AnimationManager_OnAnimationProgress;
 
-            _duration.Tick += new EventHandler(duration_Tick);
+            _duration.Tick += new EventHandler(Duration_Tick);
 
             _actionButton = new MaterialButton
             {
@@ -207,8 +208,8 @@
         {
             if (_showActionButton == true)
             {
-                int _buttonWidth = ((TextRenderer.MeasureText(ActionButtonText, SkinManager.getFontByType(MaterialSkinManager.fontType.Button))).Width + 32);
-                Rectangle _actionbuttonBounds = new Rectangle((Width) - BUTTON_PADDING - _buttonWidth, TOP_PADDING_SINGLE_LINE, _buttonWidth, BUTTON_HEIGHT);
+                int _buttonWidth = TextRenderer.MeasureText(ActionButtonText, SkinManager.GetFontByType(MaterialSkinManager.FontType.Button)).Width + 32;
+                Rectangle _actionbuttonBounds = new Rectangle(Width - BUTTON_PADDING - _buttonWidth, TOP_PADDING_SINGLE_LINE, _buttonWidth, BUTTON_HEIGHT);
                 _actionButton.Width = _actionbuttonBounds.Width;
                 _actionButton.Height = _actionbuttonBounds.Height;
                 _actionButton.Text = _actionButtonText;
@@ -222,12 +223,12 @@
             _actionButton.Left = Width - BUTTON_PADDING - _actionButton.Width;  //Button minimum width management
             _actionButton.Visible = _showActionButton;
 
-            Width = TextRenderer.MeasureText(_text, SkinManager.getFontByType(MaterialSkinManager.fontType.Body2)).Width + (2 * LEFT_RIGHT_PADDING) + _actionButton.Width + 48;
-            Region = System.Drawing.Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, 6, 6));
+            Width = TextRenderer.MeasureText(_text, SkinManager.GetFontByType(MaterialSkinManager.FontType.Body2)).Width + (2 * LEFT_RIGHT_PADDING) + _actionButton.Width + 48;
+            Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, 6, 6));
 
         }
 
-        private void duration_Tick(object sender, EventArgs e)
+        private void Duration_Tick(object? sender, EventArgs e)
         {
             _duration.Stop();
             _closingAnimationDone = false;
@@ -247,7 +248,12 @@
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            Location = new Point(Convert.ToInt32(Owner.Location.X + (Owner.Width / 2) - (Width / 2)), Convert.ToInt32(Owner.Location.Y + Owner.Height - 60));
+            if (Owner != null)
+            {
+                int x = Owner.Location.X + (Owner.Width / 2) - (Width / 2);
+                int y = Owner.Location.Y + Owner.Height - 60;
+                Location = new Point(x, y);
+            }
             _AnimationManager.StartNewAnimation(AnimationDirection.In);
             _duration.Start();
         }
@@ -255,7 +261,7 @@
         /// <summary>
         /// Animates the Form slides
         /// </summary>
-        void _AnimationManager_OnAnimationProgress(object sender)
+        void AnimationManager_OnAnimationProgress(object sender)
         {
             if (CloseAnimation)
             {
@@ -266,7 +272,7 @@
         /// <summary>
         /// Ovverides the Paint to create the solid colored backcolor
         /// </summary>
-        protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
+        protected override void OnPaint(PaintEventArgs e)
         {
 
             Graphics g = e.Graphics;
@@ -288,7 +294,7 @@
                 // Draw header text
                 NativeText.DrawTransparentText(
                     _text,
-                    SkinManager.getLogFontByType(MaterialSkinManager.fontType.Body2),
+                    SkinManager.GetLogFontByType(MaterialSkinManager.FontType.Body2),
                     SkinManager.SnackBarTextHighEmphasisColor,
                     textRect.Location,
                     textRect.Size,
@@ -300,14 +306,14 @@
         /// <summary>
         /// Overrides the Closing Event to Animate the Slide Out
         /// </summary>
-        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        protected override void OnClosing(CancelEventArgs e)
         {
             e.Cancel = !_closingAnimationDone;
             if (!_closingAnimationDone)
             {
                 CloseAnimation = true;
                 _AnimationManager.Increment = 0.06;
-                _AnimationManager.OnAnimationFinished += _AnimationManager_OnAnimationFinished;
+                _AnimationManager.OnAnimationFinished += AnimationManager_OnAnimationFinished;
                 _AnimationManager.StartNewAnimation(AnimationDirection.Out);
             }
             base.OnClosing(e);
@@ -316,7 +322,7 @@
         /// <summary>
         /// Closes the Form after the pull out animation
         /// </summary>
-        void _AnimationManager_OnAnimationFinished(object sender)
+        void AnimationManager_OnAnimationFinished(object sender)
         {
             _closingAnimationDone = true;
             Close();
@@ -331,10 +337,10 @@
 
         private void InitializeComponent()
         {
-            this.SuspendLayout();
-            this.ClientSize = new System.Drawing.Size(344, 48);
-            this.Name = "SnackBar";
-            this.ResumeLayout(false);
+            SuspendLayout();
+            ClientSize = new Size(344, 48);
+            Name = "SnackBar";
+            ResumeLayout(false);
 
         }
 
@@ -351,7 +357,10 @@
                 case WM_SYSCOMMAND:
                     int command = message.WParam.ToInt32() & 0xfff0;
                     if (command == SC_MOVE)
+                    {
                         return;
+                    }
+
                     break;
             }
 

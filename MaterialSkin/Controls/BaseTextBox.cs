@@ -1,5 +1,6 @@
 namespace MaterialSkin.Controls
 {
+    using MaterialSkin;
     using System;
     using System.ComponentModel;
     using System.Drawing;
@@ -12,15 +13,18 @@ namespace MaterialSkin.Controls
 
         //Properties for managing the material design properties
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Depth { get; set; }
 
         [Browsable(false)]
         public MaterialSkinManager SkinManager => MaterialSkinManager.Instance;
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MouseState MouseState { get; set; }
 
         private string hint = string.Empty;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public string Hint
         {
             get { return hint; }
@@ -35,7 +39,7 @@ namespace MaterialSkin.Controls
         {
             BeginInvoke((MethodInvoker)delegate ()
             {
-                base.Focus();
+                Focus();
                 base.SelectAll();
             });
         }
@@ -45,7 +49,6 @@ namespace MaterialSkin.Controls
         public BaseTextBox()
         {
         }
-
 
         protected override void OnGotFocus(EventArgs e)
         {
@@ -62,12 +65,11 @@ namespace MaterialSkin.Controls
         private const int WM_ENABLE = 0x0A;
         private const int WM_PAINT = 0xF;
         private const UInt32 WM_USER = 0x0400;
-        private const UInt32 EM_SETBKGNDCOLOR = (WM_USER + 67);
+        private const UInt32 EM_SETBKGNDCOLOR = WM_USER + 67;
         private const UInt32 WM_KILLFOCUS = 0x0008;
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
-
 
             if (m.Msg == WM_PAINT)
             {
@@ -85,7 +87,7 @@ namespace MaterialSkin.Controls
                 {
                     NativeText.DrawTransparentText(
                     Hint,
-                    SkinManager.getFontByType(MaterialSkinManager.fontType.Subtitle1),
+                    SkinManager.GetFontByType(MaterialSkinManager.FontType.Subtitle1),
                     Enabled ?
                     ColorHelper.RemoveAlpha(SkinManager.TextMediumEmphasisColor, BackColor) : // not focused
                     ColorHelper.RemoveAlpha(SkinManager.TextDisabledOrHintColor, BackColor), // Disabled
@@ -114,15 +116,18 @@ namespace MaterialSkin.Controls
     {
         //Properties for managing the material design properties
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Depth { get; set; }
 
         [Browsable(false)]
         public MaterialSkinManager SkinManager => MaterialSkinManager.Instance;
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MouseState MouseState { get; set; }
 
         private string hint = string.Empty;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public string Hint
         {
             get { return hint; }
@@ -137,11 +142,10 @@ namespace MaterialSkin.Controls
         {
             BeginInvoke((MethodInvoker)delegate ()
             {
-                base.Focus();
+                Focus();
                 base.SelectAll();
             });
         }
-
 
         public BaseMaskedTextBox()
         {
@@ -162,12 +166,11 @@ namespace MaterialSkin.Controls
         private const int WM_ENABLE = 0x0A;
         private const int WM_PAINT = 0xF;
         private const UInt32 WM_USER = 0x0400;
-        private const UInt32 EM_SETBKGNDCOLOR = (WM_USER + 67);
+        private const UInt32 EM_SETBKGNDCOLOR = WM_USER + 67;
         private const UInt32 WM_KILLFOCUS = 0x0008;
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
-
 
             if (m.Msg == WM_PAINT)
             {
@@ -185,7 +188,7 @@ namespace MaterialSkin.Controls
                 {
                     NativeText.DrawTransparentText(
                     Hint,
-                    SkinManager.getFontByType(MaterialSkinManager.fontType.Subtitle1),
+                    SkinManager.GetFontByType(MaterialSkinManager.FontType.Subtitle1),
                     Enabled ?
                     ColorHelper.RemoveAlpha(SkinManager.TextMediumEmphasisColor, BackColor) : // not focused
                     ColorHelper.RemoveAlpha(SkinManager.TextDisabledOrHintColor, BackColor), // Disabled

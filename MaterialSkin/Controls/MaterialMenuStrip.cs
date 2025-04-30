@@ -7,14 +7,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace MaterialSkin.Controls
 {
 	public class MaterialMenuStrip : MenuStrip, IMaterialControl
 	{
-		public int Depth { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int Depth { get; set; }
 		public MaterialSkinManager SkinManager { get { return MaterialSkinManager.Instance; } }
-		public MouseState MouseState { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public MouseState MouseState { get; set; }
 
 		public MaterialMenuStrip()
 		{

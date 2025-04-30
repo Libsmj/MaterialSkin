@@ -7,6 +7,7 @@
     using System.Drawing.Drawing2D;
     using System.Windows.Forms;
     using System.Runtime.InteropServices;
+    using MaterialSkin;
 
     public class MaterialDialog : MaterialForm
     {
@@ -16,15 +17,15 @@
         private const int BUTTON_HEIGHT = 36;
         private const int TEXT_TOP_PADDING = 17;
         private const int TEXT_BOTTOM_PADDING = 28;
-        private int _header_Height = 40;
+        private readonly int _header_Height = 40;
 
-        private MaterialButton _validationButton = new MaterialButton();
-        private MaterialButton _cancelButton = new MaterialButton();
-        private AnimationManager _AnimationManager;
-        private bool CloseAnimation = false;
-        private Form _formOverlay;
-        private String _text;
-        private String _title;
+        private readonly MaterialButton _validationButton = new MaterialButton();
+        private readonly MaterialButton _cancelButton = new MaterialButton();
+        private readonly AnimationManager _AnimationManager;
+        private readonly bool CloseAnimation = false;
+        private readonly Form _formOverlay;
+        private readonly String _text;
+        private readonly String _title;
 
         /// <summary>
         /// The Collection for the Buttons
@@ -67,9 +68,13 @@
 
             _title = Title;
             if (Title.Length == 0)
+            {
                 _header_Height = 0;
+            }
             else
+            {
                 _header_Height = 40;
+            }
 
             _text = Text;
             ShowInTaskbar = false;
@@ -78,10 +83,12 @@
             BackColor = SkinManager.BackgroundColor;
             FormStyle = FormStyles.StatusAndActionBar_None;
 
-            _AnimationManager = new AnimationManager();
-            _AnimationManager.AnimationType = AnimationType.EaseOut;
-            _AnimationManager.Increment = 0.03;
-            _AnimationManager.OnAnimationProgress += _AnimationManager_OnAnimationProgress;
+            _AnimationManager = new AnimationManager
+            {
+                AnimationType = AnimationType.EaseOut,
+                Increment = 0.03
+            };
+            _AnimationManager.OnAnimationProgress += AnimationManager_OnAnimationProgress;
 
             _validationButton = new MaterialButton
             {
@@ -103,16 +110,21 @@
                 Text = CancelButtonText
             };
 
-            this.AcceptButton = _validationButton;
-            this.CancelButton = _cancelButton;
+            AcceptButton = _validationButton;
+            CancelButton = _cancelButton;
 
             if (!Controls.Contains(_validationButton))
+            {
                 Controls.Add(_validationButton);
+            }
+
             if (!Controls.Contains(_cancelButton))
+            {
                 Controls.Add(_cancelButton);
+            }
 
             Width = 560;
-            int TextWidth = TextRenderer.MeasureText(_text, SkinManager.getFontByType(MaterialSkinManager.fontType.Body1)).Width;
+            int TextWidth = TextRenderer.MeasureText(_text, SkinManager.GetFontByType(MaterialSkinManager.FontType.Body1)).Width;
             int RectWidth = Width - (2 * LEFT_RIGHT_PADDING) - BUTTON_PADDING;
             int RectHeight = ((TextWidth / RectWidth) + 1) * 19;
             Rectangle textRect = new Rectangle(
@@ -122,23 +134,22 @@
                 RectHeight + 9);
 
             Height = _header_Height + TEXT_TOP_PADDING + textRect.Height + TEXT_BOTTOM_PADDING + 52; //560;
-            Region = System.Drawing.Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, 6, 6));
+            Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, 6, 6));
 
-            int _buttonWidth = ((TextRenderer.MeasureText(ValidationButtonText, SkinManager.getFontByType(MaterialSkinManager.fontType.Button))).Width + 32);
-            Rectangle _validationbuttonBounds = new Rectangle((Width) - BUTTON_PADDING - _buttonWidth, Height - BUTTON_PADDING - BUTTON_HEIGHT, _buttonWidth, BUTTON_HEIGHT);
+            int _buttonWidth = TextRenderer.MeasureText(ValidationButtonText, SkinManager.GetFontByType(MaterialSkinManager.FontType.Button)).Width + 32;
+            Rectangle _validationbuttonBounds = new Rectangle(Width - BUTTON_PADDING - _buttonWidth, Height - BUTTON_PADDING - BUTTON_HEIGHT, _buttonWidth, BUTTON_HEIGHT);
             _validationButton.Width = _validationbuttonBounds.Width;
             _validationButton.Height = _validationbuttonBounds.Height;
             _validationButton.Top = _validationbuttonBounds.Top;
             _validationButton.Left = _validationbuttonBounds.Left;  //Button minimum width management
             _validationButton.Visible = true;
 
-            _buttonWidth = ((TextRenderer.MeasureText(CancelButtonText, SkinManager.getFontByType(MaterialSkinManager.fontType.Button))).Width + 32);
-            Rectangle _cancelbuttonBounds = new Rectangle((_validationbuttonBounds.Left) - BUTTON_PADDING - _buttonWidth, Height - BUTTON_PADDING - BUTTON_HEIGHT, _buttonWidth, BUTTON_HEIGHT);
+            _buttonWidth = TextRenderer.MeasureText(CancelButtonText, SkinManager.GetFontByType(MaterialSkinManager.FontType.Button)).Width + 32;
+            Rectangle _cancelbuttonBounds = new Rectangle(_validationbuttonBounds.Left - BUTTON_PADDING - _buttonWidth, Height - BUTTON_PADDING - BUTTON_HEIGHT, _buttonWidth, BUTTON_HEIGHT);
             _cancelButton.Width = _cancelbuttonBounds.Width;
             _cancelButton.Height = _cancelbuttonBounds.Height;
             _cancelButton.Top = _cancelbuttonBounds.Top;
             _cancelButton.Left = _cancelbuttonBounds.Left;  //Button minimum width management
-
 
             //this.ShowDialog();
             //this Dispose();
@@ -173,22 +184,27 @@
         {
         }
 
-
         /// <summary>
         /// Sets up the Starting Location and starts the Animation
         /// </summary>
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+            if (Owner != null)
+            {
+                int x = Owner.Location.X + (Owner.Width / 2) - (Width / 2);
+                int y = Owner.Location.Y + (Owner.Height / 2) - (Height / 2);
 
-            Location = new Point(Convert.ToInt32(Owner.Location.X + (Owner.Width / 2) - (Width / 2)), Convert.ToInt32(Owner.Location.Y + (Owner.Height/2) - (Height / 2)));
+                Location = new Point(x, y);
+            }
+            
             _AnimationManager.StartNewAnimation(AnimationDirection.In);
         }
 
         /// <summary>
         /// Animates the Form slides
         /// </summary>
-        void _AnimationManager_OnAnimationProgress(object sender)
+        void AnimationManager_OnAnimationProgress(object sender)
         {
             if (CloseAnimation)
             {
@@ -199,7 +215,7 @@
         /// <summary>
         /// Ovverides the Paint to create the solid colored backcolor
         /// </summary>
-        protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
+        protected override void OnPaint(PaintEventArgs e)
         {
 
             Graphics g = e.Graphics;
@@ -221,7 +237,7 @@
                 // Draw header text
                 NativeText.DrawTransparentText(
                     _title,
-                    SkinManager.getLogFontByType(MaterialSkinManager.fontType.H6),
+                    SkinManager.GetLogFontByType(MaterialSkinManager.FontType.H6),
                     SkinManager.TextHighEmphasisColor,
                     titleRect.Location,
                     titleRect.Size,
@@ -230,7 +246,7 @@
 
             // Calc text Rect
 
-            int TextWidth = TextRenderer.MeasureText(_text, SkinManager.getFontByType(MaterialSkinManager.fontType.Body1)).Width;
+            int TextWidth = TextRenderer.MeasureText(_text, SkinManager.GetFontByType(MaterialSkinManager.FontType.Body1)).Width;
             int RectWidth = Width - (2 * LEFT_RIGHT_PADDING) - BUTTON_PADDING;
             int RectHeight = ((TextWidth / RectWidth) + 1) * 19;
 
@@ -246,7 +262,7 @@
                 // Draw header text
                 NativeText.DrawMultilineTransparentText(
                     _text,
-                    SkinManager.getLogFontByType(MaterialSkinManager.fontType.Body1),
+                    SkinManager.GetLogFontByType(MaterialSkinManager.FontType.Body1),
                     SkinManager.TextHighEmphasisColor,
                     textRect.Location,
                     textRect.Size,
@@ -258,13 +274,12 @@
         /// <summary>
         /// Overrides the Closing Event to Animate the Slide Out
         /// </summary>
-        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        protected override void OnClosing(CancelEventArgs e)
         {
             _formOverlay.Visible = false;
             _formOverlay.Close();
             _formOverlay.Dispose();
-
-            DialogResult res = this.DialogResult;
+            _ = DialogResult;
 
             base.OnClosing(e);
         }
@@ -272,16 +287,16 @@
         /// <summary>
         /// Closes the Form after the pull out animation
         /// </summary>
-        void _AnimationManager_OnAnimationFinished(object sender)
-        {
-            Close();
-        }
+        //void AnimationManager_OnAnimationFinished(object sender)
+        //{
+        //    Close();
+        //}
 
         protected override bool ProcessDialogKey(Keys keyData)
         {
-            if (Form.ModifierKeys == Keys.None && keyData == Keys.Escape)
+            if (ModifierKeys == Keys.None && keyData == Keys.Escape)
             {
-                this.Close();
+                Close();
                 return true;
             }
             return base.ProcessDialogKey(keyData);
@@ -289,10 +304,10 @@
 
         private void InitializeComponent()
         {
-            this.SuspendLayout();
-            this.ClientSize = new System.Drawing.Size(560, 182);
-            this.Name = "Dialog";
-            this.ResumeLayout(false);
+            SuspendLayout();
+            ClientSize = new Size(560, 182);
+            Name = "Dialog";
+            ResumeLayout(false);
 
         }
 
@@ -309,7 +324,10 @@
                 case WM_SYSCOMMAND:
                     int command = message.WParam.ToInt32() & 0xfff0;
                     if (command == SC_MOVE)
+                    {
                         return;
+                    }
+
                     break;
             }
 

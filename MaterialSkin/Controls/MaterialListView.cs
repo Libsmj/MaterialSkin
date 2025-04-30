@@ -1,5 +1,6 @@
 ﻿namespace MaterialSkin.Controls
 {
+    using MaterialSkin;
     using System;
     using System.ComponentModel;
     using System.Drawing;
@@ -8,20 +9,24 @@
     public class MaterialListView : ListView, IMaterialControl
     {
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Depth { get; set; }
 
         [Browsable(false)]
         public MaterialSkinManager SkinManager => MaterialSkinManager.Instance;
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MouseState MouseState { get; set; }
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public Point MouseLocation { get; set; }
 
         private bool _autoSizeTable;
 
         [Category("Appearance"), Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool AutoSizeTable
         {
             get
@@ -36,7 +41,7 @@
         }
 
         [Browsable(false)]
-        private ListViewItem HoveredItem { get; set; }
+        private ListViewItem? HoveredItem { get; set; }
 
         private const int PAD = 16;
         private const int ITEMS_HEIGHT = 52;
@@ -76,10 +81,10 @@
             {
                 MouseState = MouseState.HOVER;
             };
-            MouseMove += delegate (object sender, MouseEventArgs args)
+            MouseMove += delegate (object? sender, MouseEventArgs args)
             {
                 MouseLocation = args.Location;
-                var currentHoveredItem = GetItemAt(MouseLocation.X, MouseLocation.Y);
+                ListViewItem? currentHoveredItem = GetItemAt(MouseLocation.X, MouseLocation.Y);
                 if (HoveredItem != currentHoveredItem)
                 {
                     HoveredItem = currentHoveredItem;
@@ -99,8 +104,8 @@
             using (NativeTextRenderer NativeText = new NativeTextRenderer(g))
             {
                 NativeText.DrawTransparentText(
-                    e.Header.Text,
-                    SkinManager.getLogFontByType(MaterialSkinManager.fontType.Subtitle2),
+                    e.Header?.Text ?? string.Empty,
+                    SkinManager.GetLogFontByType(MaterialSkinManager.FontType.Subtitle2),
                     Enabled ? SkinManager.TextHighEmphasisNoAlphaColor : SkinManager.TextDisabledOrHintColor,
                     new Point(e.Bounds.Location.X + PAD, e.Bounds.Location.Y),
                     new Size(e.Bounds.Size.Width - PAD * 2, e.Bounds.Size.Height),
@@ -138,7 +143,7 @@
                 {
                     NativeText.DrawTransparentText(
                         subItem.Text,
-                        SkinManager.getLogFontByType(MaterialSkinManager.fontType.Body2),
+                        SkinManager.GetLogFontByType(MaterialSkinManager.FontType.Body2),
                         Enabled ? SkinManager.TextHighEmphasisNoAlphaColor : SkinManager.TextDisabledOrHintColor,
                         new Point(subItem.Bounds.X + PAD, subItem.Bounds.Y),
                         new Size(subItem.Bounds.Width - PAD * 2, subItem.Bounds.Height),
@@ -168,7 +173,10 @@
 
         private void AutoResize()
         {
-            if (!AutoSizeTable) return;
+            if (!AutoSizeTable)
+            {
+                return;
+            }
 
             // Width
             int w = 0;
@@ -179,7 +187,11 @@
 
             // Height
             int h = 50; //Header size
-            if (Items.Count > 0) h = TopItem.Bounds.Top;
+            if (Items.Count > 0)
+            {
+                h = TopItem?.Bounds.Top ?? 0;
+            }
+
             foreach (ListViewItem item in Items)
             {
                 h += item.Bounds.Height;

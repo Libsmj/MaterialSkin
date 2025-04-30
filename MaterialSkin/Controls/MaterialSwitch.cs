@@ -1,5 +1,6 @@
 ﻿namespace MaterialSkin.Controls
 {
+    using MaterialSkin;
     using MaterialSkin.Animations;
     using System;
     using System.ComponentModel;
@@ -11,20 +12,25 @@
     public class MaterialSwitch : CheckBox, IMaterialControl
     {
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Depth { get; set; }
 
         [Browsable(false)]
         public MaterialSkinManager SkinManager => MaterialSkinManager.Instance;
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MouseState MouseState { get; set; }
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public Point MouseLocation { get; set; }
 
         private bool _ripple;
 
         [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2245:Do not assign a property to itself", Justification = "Trigger Autosize setter side effects")]
         public bool Ripple
         {
             get { return _ripple; }
@@ -54,9 +60,9 @@
 
         private const int THUMB_SIZE_HALF = THUMB_SIZE / 2;
 
-        private const int TRACK_SIZE_HEIGHT = (int)(14);
-        private const int TRACK_SIZE_WIDTH = (int)(36);
-        private const int TRACK_RADIUS = (int)(TRACK_SIZE_HEIGHT / 2);
+        private const int TRACK_SIZE_HEIGHT = 14;
+        private const int TRACK_SIZE_WIDTH = 36;
+        private const int TRACK_RADIUS = TRACK_SIZE_HEIGHT / 2;
 
         private int TRACK_CENTER_Y;
         private int TRACK_CENTER_X_BEGIN;
@@ -92,7 +98,9 @@
             CheckedChanged += (sender, args) =>
             {
                 if (Ripple)
+                {
                     _checkAM.StartNewAnimation(Checked ? AnimationDirection.In : AnimationDirection.Out);
+                }
             };
 
             Ripple = true;
@@ -102,7 +110,10 @@
 
         protected override void OnClick(EventArgs e)
         {
-            if (!ReadOnly) base.OnClick(e);
+            if (!ReadOnly)
+            {
+                base.OnClick(e);
+            }
         }
 
         protected override void OnSizeChanged(EventArgs e)
@@ -122,9 +133,9 @@
             Size strSize;
             using (NativeTextRenderer NativeText = new NativeTextRenderer(CreateGraphics()))
             {
-                strSize = NativeText.MeasureLogString(Text, SkinManager.getLogFontByType(MaterialSkinManager.fontType.Body1));
+                strSize = NativeText.MeasureLogString(Text, SkinManager.GetLogFontByType(MaterialSkinManager.FontType.Body1));
             }
-            var w = TRACK_SIZE_WIDTH + THUMB_SIZE + strSize.Width;
+            int w = TRACK_SIZE_WIDTH + THUMB_SIZE + strSize.Width;
             return Ripple ? new Size(w, RIPPLE_DIAMETER) : new Size(w, THUMB_SIZE);
         }
 
@@ -134,26 +145,29 @@
 
         protected override void OnPaint(PaintEventArgs pevent)
         {
-            var g = pevent.Graphics;
+            Graphics g = pevent.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
-            g.Clear(Parent.BackColor);
+            if (Parent != null)
+            {
+                g.Clear(Parent.BackColor);
+            }
 
-            var animationProgress = _checkAM.GetProgress();
+            double animationProgress = _checkAM.GetProgress();
 
             // Draw Track
             Color thumbColor = DrawHelper.BlendColor(
-                        (Enabled ? SkinManager.SwitchOffThumbColor : SkinManager.SwitchOffDisabledThumbColor), // Off color
-                        (Enabled ? SkinManager.ColorScheme.AccentColor : DrawHelper.BlendColor(SkinManager.ColorScheme.AccentColor, SkinManager.SwitchOffDisabledThumbColor, 197)), // On color
+                        Enabled ? SkinManager.SwitchOffThumbColor : SkinManager.SwitchOffDisabledThumbColor, // Off color
+                        Enabled ? SkinManager.ColorScheme.AccentColor : DrawHelper.BlendColor(SkinManager.ColorScheme.AccentColor, SkinManager.SwitchOffDisabledThumbColor, 197), // On color
                         animationProgress * 255); // Blend amount
 
-            using (var path = DrawHelper.CreateRoundRect(new Rectangle(TRACK_CENTER_X_BEGIN - TRACK_RADIUS, TRACK_CENTER_Y - TRACK_SIZE_HEIGHT / 2, TRACK_SIZE_WIDTH, TRACK_SIZE_HEIGHT), TRACK_RADIUS))
+            using (GraphicsPath path = DrawHelper.CreateRoundRect(new Rectangle(TRACK_CENTER_X_BEGIN - TRACK_RADIUS, TRACK_CENTER_Y - TRACK_SIZE_HEIGHT / 2, TRACK_SIZE_WIDTH, TRACK_SIZE_HEIGHT), TRACK_RADIUS))
             {
                 using (SolidBrush trackBrush = new SolidBrush(
                     Color.FromArgb(Enabled ? SkinManager.SwitchOffTrackColor.A : SkinManager.BackgroundDisabledColor.A, // Track alpha
                     DrawHelper.BlendColor( // animate color
-                        (Enabled ? SkinManager.SwitchOffTrackColor : SkinManager.BackgroundDisabledColor), // Off color
+                        Enabled ? SkinManager.SwitchOffTrackColor : SkinManager.BackgroundDisabledColor, // Off color
                         SkinManager.ColorScheme.AccentColor, // On color
                         animationProgress * 255) // Blend amount
                         .RemoveAlpha())))
@@ -221,7 +235,7 @@
                 Rectangle textLocation = new Rectangle(TEXT_OFFSET + TRACK_SIZE_WIDTH, 0, Width - (TEXT_OFFSET + TRACK_SIZE_WIDTH), Height);
                 NativeText.DrawTransparentText(
                     Text,
-                    SkinManager.getLogFontByType(MaterialSkinManager.fontType.Body1),
+                    SkinManager.GetLogFontByType(MaterialSkinManager.FontType.Body1),
                     Enabled ? SkinManager.TextHighEmphasisColor : SkinManager.TextDisabledOrHintColor,
                     textLocation.Location,
                     textLocation.Size,
@@ -229,23 +243,24 @@
             }
         }
 
-        private Bitmap DrawCheckMarkBitmap()
-        {
-            var checkMark = new Bitmap(THUMB_SIZE, THUMB_SIZE);
-            var g = Graphics.FromImage(checkMark);
+        //private Bitmap DrawCheckMarkBitmap()
+        //{
+        //    Bitmap checkMark = new Bitmap(THUMB_SIZE, THUMB_SIZE);
+        //    Graphics g = Graphics.FromImage(checkMark);
 
-            // clear everything, transparent
-            g.Clear(Color.Transparent);
+        //    // clear everything, transparent
+        //    g.Clear(Color.Transparent);
 
-            // draw the checkmark lines
-            using (var pen = new Pen(Parent.BackColor, 2))
-            {
-                g.DrawLines(pen, CheckmarkLine);
-            }
+        //    // draw the checkmark lines
+        //    using (Pen pen = new Pen(Parent.BackColor, 2))
+        //    {
+        //        g.DrawLines(pen, CheckmarkLine);
+        //    }
 
-            return checkMark;
-        }
+        //    return checkMark;
+        //}
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public override bool AutoSize
         {
             get { return base.AutoSize; }
@@ -270,7 +285,10 @@
         {
             base.OnCreateControl();
 
-            if (DesignMode) return;
+            if (DesignMode)
+            {
+                return;
+            }
 
             MouseState = MouseState.OUT;
 

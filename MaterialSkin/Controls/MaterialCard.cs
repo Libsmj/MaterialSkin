@@ -9,34 +9,36 @@
     public class MaterialCard : Panel, IMaterialControl
     {
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Depth { get; set; }
 
         [Browsable(false)]
         public MaterialSkinManager SkinManager => MaterialSkinManager.Instance;
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MouseState MouseState { get; set; }
 
         public MaterialCard()
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
-            Paint += new PaintEventHandler(paintControl);
+            Paint += new PaintEventHandler(PaintControl);
             BackColor = SkinManager.BackgroundColor;
             ForeColor = SkinManager.TextHighEmphasisColor;
             Margin = new Padding(SkinManager.FORM_PADDING);
             Padding = new Padding(SkinManager.FORM_PADDING);
         }
 
-        private void drawShadowOnParent(object sender, PaintEventArgs e)
+        private void DrawShadowOnParent(object? sender, PaintEventArgs e)
         {
-            if (Parent == null)
+            if (Parent == null && sender is Control control)
             {
-                RemoveShadowPaintEvent((Control)sender, drawShadowOnParent);
+                RemoveShadowPaintEvent(control, DrawShadowOnParent);
                 return;
             }
 
             // paint shadow on parent
-            Graphics gp = e.Graphics;
+            Graphics? gp = e.Graphics;
             Rectangle rect = new Rectangle(Location, ClientRectangle.Size);
             gp.SmoothingMode = SmoothingMode.AntiAlias;
             DrawHelper.DrawSquareShadow(gp, rect);
@@ -51,28 +53,48 @@
         protected override void OnParentChanged(EventArgs e)
         {
             base.OnParentChanged(e);
-            if (Parent != null) AddShadowPaintEvent(Parent, drawShadowOnParent);
-            if (_oldParent != null) RemoveShadowPaintEvent(_oldParent, drawShadowOnParent);
+            if (Parent != null)
+            {
+                AddShadowPaintEvent(Parent, DrawShadowOnParent);
+            }
+
+            if (_oldParent != null)
+            {
+                RemoveShadowPaintEvent(_oldParent, DrawShadowOnParent);
+            }
+
             _oldParent = Parent;
         }
 
-        private Control _oldParent;
+        private Control? _oldParent;
 
         protected override void OnVisibleChanged(EventArgs e)
         {
             base.OnVisibleChanged(e);
-            if (Parent == null) return;
+            if (Parent == null)
+            {
+                return;
+            }
+
             if (Visible)
-                AddShadowPaintEvent(Parent, drawShadowOnParent);
+            {
+                AddShadowPaintEvent(Parent, DrawShadowOnParent);
+            }
             else
-                RemoveShadowPaintEvent(Parent, drawShadowOnParent);
+            {
+                RemoveShadowPaintEvent(Parent, DrawShadowOnParent);
+            }
         }
 
         private bool _shadowDrawEventSubscribed = false;
 
         private void AddShadowPaintEvent(Control control, PaintEventHandler shadowPaintEvent)
         {
-            if (_shadowDrawEventSubscribed) return;
+            if (_shadowDrawEventSubscribed)
+            {
+                return;
+            }
+
             control.Paint += shadowPaintEvent;
             control.Invalidate();
             _shadowDrawEventSubscribed = true;
@@ -80,7 +102,11 @@
 
         private void RemoveShadowPaintEvent(Control control, PaintEventHandler shadowPaintEvent)
         {
-            if (!_shadowDrawEventSubscribed) return;
+            if (!_shadowDrawEventSubscribed)
+            {
+                return;
+            }
+
             control.Paint -= shadowPaintEvent;
             control.Invalidate();
             _shadowDrawEventSubscribed = false;
@@ -92,24 +118,27 @@
             BackColor = SkinManager.BackgroundColor;
         }
 
-        private void paintControl(Object sender, PaintEventArgs e)
+        private void PaintControl(object? sender, PaintEventArgs e)
         {
-            Graphics g = e.Graphics;
+            Graphics? g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            g.Clear(Parent.BackColor);
+            if (Parent != null)
+            {
+                g.Clear(Parent.BackColor);
+            }
 
             // card rectangle path
             RectangleF cardRectF = new RectangleF(ClientRectangle.Location, ClientRectangle.Size);
             cardRectF.X -= 0.5f;
             cardRectF.Y -= 0.5f;
-            GraphicsPath cardPath = DrawHelper.CreateRoundRect(cardRectF, 4);
+            GraphicsPath? cardPath = DrawHelper.CreateRoundRect(cardRectF, 4);
 
             // button shadow (blend with form shadow)
             DrawHelper.DrawSquareShadow(g, ClientRectangle);
 
             // Draw card
-            using (SolidBrush normalBrush = new SolidBrush(BackColor))
+            using (SolidBrush? normalBrush = new SolidBrush(BackColor))
             {
                 g.FillPath(normalBrush, cardPath);
             }

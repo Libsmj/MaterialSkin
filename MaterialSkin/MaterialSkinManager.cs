@@ -1,33 +1,28 @@
-﻿namespace MaterialSkin
-{
-    using MaterialSkin.Controls;
-    using MaterialSkin.Properties;
-    using System;
-    using System.Collections.Generic;
-    using System.Drawing;
-    using System.Drawing.Text;
-    using System.Linq;
-    using System.Runtime.InteropServices;
-    using System.Windows.Forms;
+﻿using MaterialSkin.Controls;
+using MaterialSkin.Properties;
+using System.Drawing.Text;
+using System.Runtime.InteropServices;
 
+namespace MaterialSkin
+{
     public class MaterialSkinManager
     {
-        private static MaterialSkinManager _instance;
-
         private readonly List<MaterialForm> _formsToManage = new List<MaterialForm>();
 
         public delegate void SkinManagerEventHandler(object sender);
 
-        public event SkinManagerEventHandler ColorSchemeChanged;
+        public event SkinManagerEventHandler? ColorSchemeChanged;
 
-        public event SkinManagerEventHandler ThemeChanged;
+        public event SkinManagerEventHandler? ThemeChanged;
 
         /// <summary>
         /// Set this property to false to stop enforcing the backcolor on non-materialSkin components
         /// </summary>
         public bool EnforceBackcolorOnAllComponents = true;
 
-        public static MaterialSkinManager Instance => _instance ?? (_instance = new MaterialSkinManager());
+        private static readonly MaterialSkinManager _instance = new MaterialSkinManager();
+
+        public static MaterialSkinManager Instance => _instance;
 
         public int FORM_PADDING = 14;
 
@@ -42,12 +37,12 @@
             // And https://www.codeproject.com/Articles/107376/Embedding-Font-To-Resources
 
             // Add font to system table in memory and save the font family
-            addFont(Resources.Roboto_Thin);
-            addFont(Resources.Roboto_Light);
-            addFont(Resources.Roboto_Regular);
-            addFont(Resources.Roboto_Medium);
-            addFont(Resources.Roboto_Bold);
-            addFont(Resources.Roboto_Black);
+            AddFont(Resources.Roboto_Thin);
+            AddFont(Resources.Roboto_Light);
+            AddFont(Resources.Roboto_Regular);
+            AddFont(Resources.Roboto_Medium);
+            AddFont(Resources.Roboto_Bold);
+            AddFont(Resources.Roboto_Black);
 
             RobotoFontFamilies = new Dictionary<string, FontFamily>();
             foreach (FontFamily ff in privateFontCollection.Families.ToArray())
@@ -57,26 +52,26 @@
 
             // create and save font handles for GDI
             logicalFonts = new Dictionary<string, IntPtr>(18);
-            logicalFonts.Add("H1", createLogicalFont("Roboto Light", 96, NativeTextRenderer.logFontWeight.FW_LIGHT));
-            logicalFonts.Add("H2", createLogicalFont("Roboto Light", 60, NativeTextRenderer.logFontWeight.FW_LIGHT));
-            logicalFonts.Add("H3", createLogicalFont("Roboto", 48, NativeTextRenderer.logFontWeight.FW_REGULAR));
-            logicalFonts.Add("H4", createLogicalFont("Roboto", 34, NativeTextRenderer.logFontWeight.FW_REGULAR));
-            logicalFonts.Add("H5", createLogicalFont("Roboto", 24, NativeTextRenderer.logFontWeight.FW_REGULAR));
-            logicalFonts.Add("H6", createLogicalFont("Roboto Medium", 20, NativeTextRenderer.logFontWeight.FW_MEDIUM));
-            logicalFonts.Add("Subtitle1", createLogicalFont("Roboto", 16, NativeTextRenderer.logFontWeight.FW_REGULAR));
-            logicalFonts.Add("Subtitle2", createLogicalFont("Roboto Medium", 14, NativeTextRenderer.logFontWeight.FW_MEDIUM));
-            logicalFonts.Add("SubtleEmphasis", createLogicalFont("Roboto", 12, NativeTextRenderer.logFontWeight.FW_NORMAL, 1));
-            logicalFonts.Add("Body1", createLogicalFont("Roboto", 16, NativeTextRenderer.logFontWeight.FW_REGULAR));
-            logicalFonts.Add("Body2", createLogicalFont("Roboto", 14, NativeTextRenderer.logFontWeight.FW_REGULAR));
-            logicalFonts.Add("Button", createLogicalFont("Roboto Medium", 14, NativeTextRenderer.logFontWeight.FW_MEDIUM));
-            logicalFonts.Add("Caption", createLogicalFont("Roboto", 12, NativeTextRenderer.logFontWeight.FW_REGULAR));
-            logicalFonts.Add("Overline", createLogicalFont("Roboto", 10, NativeTextRenderer.logFontWeight.FW_REGULAR));
+            logicalFonts.Add("H1", CreateLogicalFont("Roboto Light", 96, NativeTextRenderer.LogFontWeight.FW_LIGHT));
+            logicalFonts.Add("H2", CreateLogicalFont("Roboto Light", 60, NativeTextRenderer.LogFontWeight.FW_LIGHT));
+            logicalFonts.Add("H3", CreateLogicalFont("Roboto", 48, NativeTextRenderer.LogFontWeight.FW_REGULAR));
+            logicalFonts.Add("H4", CreateLogicalFont("Roboto", 34, NativeTextRenderer.LogFontWeight.FW_REGULAR));
+            logicalFonts.Add("H5", CreateLogicalFont("Roboto", 24, NativeTextRenderer.LogFontWeight.FW_REGULAR));
+            logicalFonts.Add("H6", CreateLogicalFont("Roboto Medium", 20, NativeTextRenderer.LogFontWeight.FW_MEDIUM));
+            logicalFonts.Add("Subtitle1", CreateLogicalFont("Roboto", 16, NativeTextRenderer.LogFontWeight.FW_REGULAR));
+            logicalFonts.Add("Subtitle2", CreateLogicalFont("Roboto Medium", 14, NativeTextRenderer.LogFontWeight.FW_MEDIUM));
+            logicalFonts.Add("SubtleEmphasis", CreateLogicalFont("Roboto", 12, NativeTextRenderer.LogFontWeight.FW_NORMAL, 1));
+            logicalFonts.Add("Body1", CreateLogicalFont("Roboto", 16, NativeTextRenderer.LogFontWeight.FW_REGULAR));
+            logicalFonts.Add("Body2", CreateLogicalFont("Roboto", 14, NativeTextRenderer.LogFontWeight.FW_REGULAR));
+            logicalFonts.Add("Button", CreateLogicalFont("Roboto Medium", 14, NativeTextRenderer.LogFontWeight.FW_MEDIUM));
+            logicalFonts.Add("Caption", CreateLogicalFont("Roboto", 12, NativeTextRenderer.LogFontWeight.FW_REGULAR));
+            logicalFonts.Add("Overline", CreateLogicalFont("Roboto", 10, NativeTextRenderer.LogFontWeight.FW_REGULAR));
             // Logical fonts for textbox animation
-            logicalFonts.Add("textBox16", createLogicalFont("Roboto", 16, NativeTextRenderer.logFontWeight.FW_REGULAR));
-            logicalFonts.Add("textBox15", createLogicalFont("Roboto", 15, NativeTextRenderer.logFontWeight.FW_REGULAR));
-            logicalFonts.Add("textBox14", createLogicalFont("Roboto", 14, NativeTextRenderer.logFontWeight.FW_REGULAR));
-            logicalFonts.Add("textBox13", createLogicalFont("Roboto Medium", 13, NativeTextRenderer.logFontWeight.FW_MEDIUM));
-            logicalFonts.Add("textBox12", createLogicalFont("Roboto Medium", 12, NativeTextRenderer.logFontWeight.FW_MEDIUM));
+            logicalFonts.Add("textBox16", CreateLogicalFont("Roboto", 16, NativeTextRenderer.LogFontWeight.FW_REGULAR));
+            logicalFonts.Add("textBox15", CreateLogicalFont("Roboto", 15, NativeTextRenderer.LogFontWeight.FW_REGULAR));
+            logicalFonts.Add("textBox14", CreateLogicalFont("Roboto", 14, NativeTextRenderer.LogFontWeight.FW_REGULAR));
+            logicalFonts.Add("textBox13", CreateLogicalFont("Roboto Medium", 13, NativeTextRenderer.LogFontWeight.FW_MEDIUM));
+            logicalFonts.Add("textBox12", CreateLogicalFont("Roboto Medium", 12, NativeTextRenderer.LogFontWeight.FW_MEDIUM));
         }
 
         // Destructor
@@ -103,7 +98,7 @@
             }
         }
 
-        private ColorScheme _colorScheme;
+        private ColorScheme _colorScheme = new ColorScheme();
 
         public ColorScheme ColorScheme
         {
@@ -257,7 +252,6 @@
         public Color BackgroundFocusColor => Theme == Themes.LIGHT ? BACKGROUND_FOCUS_LIGHT : BACKGROUND_FOCUS_DARK;
         public Brush BackgroundFocusBrush => Theme == Themes.LIGHT ? BACKGROUND_FOCUS_LIGHT_BRUSH : BACKGROUND_FOCUS_DARK_BRUSH;
 
-
         // Other color
         public Color CardsColor => Theme == Themes.LIGHT ? CARD_WHITE : CARD_BLACK;
 
@@ -274,7 +268,7 @@
         public Brush BackdropBrush => Theme == Themes.LIGHT ? BACKDROP_LIGHT_BRUSH : BACKDROP_DARK_BRUSH;
 
         // Font Handling
-        public enum fontType
+        public enum FontType
         {
             H1,
             H2,
@@ -292,50 +286,50 @@
             Overline
         }
 
-        public Font getFontByType(fontType type)
+        public Font GetFontByType(FontType type)
         {
             switch (type)
             {
-                case fontType.H1:
+                case FontType.H1:
                     return new Font(RobotoFontFamilies["Roboto_Light"], 96f, FontStyle.Regular, GraphicsUnit.Pixel);
 
-                case fontType.H2:
+                case FontType.H2:
                     return new Font(RobotoFontFamilies["Roboto_Light"], 60f, FontStyle.Regular, GraphicsUnit.Pixel);
 
-                case fontType.H3:
+                case FontType.H3:
                     return new Font(RobotoFontFamilies["Roboto"], 48f, FontStyle.Bold, GraphicsUnit.Pixel);
 
-                case fontType.H4:
+                case FontType.H4:
                     return new Font(RobotoFontFamilies["Roboto"], 34f, FontStyle.Bold, GraphicsUnit.Pixel);
 
-                case fontType.H5:
+                case FontType.H5:
                     return new Font(RobotoFontFamilies["Roboto"], 24f, FontStyle.Bold, GraphicsUnit.Pixel);
 
-                case fontType.H6:
+                case FontType.H6:
                     return new Font(RobotoFontFamilies["Roboto_Medium"], 20f, FontStyle.Bold, GraphicsUnit.Pixel);
 
-                case fontType.Subtitle1:
+                case FontType.Subtitle1:
                     return new Font(RobotoFontFamilies["Roboto"], 16f, FontStyle.Regular, GraphicsUnit.Pixel);
 
-                case fontType.Subtitle2:
+                case FontType.Subtitle2:
                     return new Font(RobotoFontFamilies["Roboto_Medium"], 14f, FontStyle.Bold, GraphicsUnit.Pixel);
                 
-                case fontType.SubtleEmphasis:
+                case FontType.SubtleEmphasis:
                     return new Font(RobotoFontFamilies["Roboto"], 12f, FontStyle.Italic, GraphicsUnit.Pixel);
 
-                case fontType.Body1:
+                case FontType.Body1:
                     return new Font(RobotoFontFamilies["Roboto"], 14f, FontStyle.Regular, GraphicsUnit.Pixel);
 
-                case fontType.Body2:
+                case FontType.Body2:
                     return new Font(RobotoFontFamilies["Roboto"], 12f, FontStyle.Regular, GraphicsUnit.Pixel);
 
-                case fontType.Button:
+                case FontType.Button:
                     return new Font(RobotoFontFamilies["Roboto"], 14f, FontStyle.Bold, GraphicsUnit.Pixel);
 
-                case fontType.Caption:
+                case FontType.Caption:
                     return new Font(RobotoFontFamilies["Roboto"], 12f, FontStyle.Regular, GraphicsUnit.Pixel);
 
-                case fontType.Overline:
+                case FontType.Overline:
                     return new Font(RobotoFontFamilies["Roboto"], 10f, FontStyle.Regular, GraphicsUnit.Pixel);
             }
             return new Font(RobotoFontFamilies["Roboto"], 14f, FontStyle.Regular, GraphicsUnit.Pixel);
@@ -346,7 +340,7 @@
         /// </summary>
         /// <param name="size">font size, ranges from 12 up to 16</param>
         /// <returns></returns>
-        public IntPtr getTextBoxFontBySize(int size)
+        public IntPtr GetTextBoxFontBySize(int size)
         {
             string name = "textBox" + Math.Min(16, Math.Max(12, size)).ToString();
             return logicalFonts[name];
@@ -357,19 +351,19 @@
         /// </summary>
         /// <param name="type">material design font type</param>
         /// <returns></returns>
-        public IntPtr getLogFontByType(fontType type)
+        public IntPtr GetLogFontByType(FontType type)
         {
-            return logicalFonts[Enum.GetName(typeof(fontType), type)];
+            return logicalFonts[Enum.GetName(type) ?? ""];
         }
 
         // Font stuff
-        private Dictionary<string, IntPtr> logicalFonts;
+        private readonly Dictionary<string, IntPtr> logicalFonts;
 
-        private Dictionary<string, FontFamily> RobotoFontFamilies;
+        private readonly Dictionary<string, FontFamily> RobotoFontFamilies;
 
-        private PrivateFontCollection privateFontCollection = new PrivateFontCollection();
+        private readonly PrivateFontCollection privateFontCollection = new PrivateFontCollection();
 
-        private void addFont(byte[] fontdata)
+        private void AddFont(byte[] fontdata)
         {
             // Add font to system table in memory
             int dataLength = fontdata.Length;
@@ -384,14 +378,16 @@
             privateFontCollection.AddMemoryFont(ptrFont, dataLength);
         }
 
-        private IntPtr createLogicalFont(string fontName, int size, NativeTextRenderer.logFontWeight weight, byte lfItalic = 0)
+        private static IntPtr CreateLogicalFont(string fontName, int size, NativeTextRenderer.LogFontWeight weight, byte lfItalic = 0)
         {
             // Logical font:
-            NativeTextRenderer.LogFont lfont = new NativeTextRenderer.LogFont();
-            lfont.lfFaceName = fontName;
-            lfont.lfHeight = -size;
-            lfont.lfWeight = (int)weight;
-            lfont.lfItalic = lfItalic;
+            NativeTextRenderer.LogFont lfont = new NativeTextRenderer.LogFont
+            {
+                lfFaceName = fontName,
+                lfHeight = -size,
+                lfWeight = (int)weight,
+                lfItalic = lfItalic
+            };
             return NativeTextRenderer.CreateFontIndirect(lfont);
         }
 
@@ -415,26 +411,32 @@
 
         private void UpdateBackgrounds()
         {
-            var newBackColor = BackdropColor;
-            foreach (var materialForm in _formsToManage)
+            Color newBackColor = BackdropColor;
+            foreach (MaterialForm materialForm in _formsToManage)
             {
                 materialForm.BackColor = newBackColor;
                 UpdateControlBackColor(materialForm, newBackColor);
             }
         }
 
-        private void UpdateControlBackColor(Control controlToUpdate, Color newBackColor)
+        private void UpdateControlBackColor(Control? controlToUpdate, Color newBackColor)
         {
             // No control
-            if (controlToUpdate == null) return;
+            if (controlToUpdate == null)
+            {
+                return;
+            }
 
             // Control's Context menu
-            if (controlToUpdate.ContextMenuStrip != null) UpdateToolStrip(controlToUpdate.ContextMenuStrip, newBackColor);
+            if (controlToUpdate.ContextMenuStrip != null)
+            {
+                UpdateToolStrip(controlToUpdate.ContextMenuStrip, newBackColor);
+            }
 
             // Material Tabcontrol pages
-            if (controlToUpdate is TabPage)
+            if (controlToUpdate is TabPage page)
             {
-                ((TabPage)controlToUpdate).BackColor = newBackColor;
+                page.BackColor = newBackColor;
             }
 
             // Material Divider
@@ -455,7 +457,7 @@
             {
                 controlToUpdate.BackColor = controlToUpdate.Parent.BackColor;
                 controlToUpdate.ForeColor = TextHighEmphasisColor;
-                controlToUpdate.Font = getFontByType(MaterialSkinManager.fontType.Body1);
+                controlToUpdate.Font = GetFontByType(FontType.Body1);
             }
 
             // Recursive call to control's children
@@ -465,7 +467,7 @@
             }
         }
 
-        private void UpdateToolStrip(ToolStrip toolStrip, Color newBackColor)
+        private static void UpdateToolStrip(ToolStrip toolStrip, Color newBackColor)
         {
             if (toolStrip == null)
             {
@@ -476,10 +478,10 @@
             foreach (ToolStripItem control in toolStrip.Items)
             {
                 control.BackColor = newBackColor;
-                if (control is MaterialToolStripMenuItem && (control as MaterialToolStripMenuItem).HasDropDown)
+                if (control is MaterialToolStripMenuItem item && item.HasDropDown)
                 {
                     //recursive call
-                    UpdateToolStrip((control as MaterialToolStripMenuItem).DropDown, newBackColor);
+                    UpdateToolStrip(item.DropDown, newBackColor);
                 }
             }
         }

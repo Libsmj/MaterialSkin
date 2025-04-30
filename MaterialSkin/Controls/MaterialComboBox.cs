@@ -7,6 +7,7 @@
     using System.Linq;
     using System.Data;
     using System.Windows.Forms;
+    using MaterialSkin;
 
     public class MaterialComboBox : ComboBox, IMaterialControl
     {
@@ -14,24 +15,27 @@
         [Browsable(true), EditorBrowsable(EditorBrowsableState.Always), Category("Layout")]
         private bool _AutoResize;
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool AutoResize
         {
             get { return _AutoResize; }
             set
             {
                 _AutoResize = value;
-                recalculateAutoSize();
+                RecalculateAutoSize();
             }
         }
 
         //Properties for managing the material design properties
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Depth { get; set; }
 
         [Browsable(false)]
         public MaterialSkinManager SkinManager => MaterialSkinManager.Instance;
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MouseState MouseState { get; set; }
 
         private bool _UseTallSize;
@@ -43,7 +47,7 @@
             set
             {
                 _UseTallSize = value;
-                setHeightVars();
+                SetHeightVars();
                 Invalidate();
             }
         }
@@ -66,6 +70,7 @@
         }
 
         private int _startIndex;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int StartIndex
         {
             get => _startIndex;
@@ -74,7 +79,7 @@
                 _startIndex = value;
                 try
                 {
-                    if (base.Items.Count > 0)
+                    if (Items.Count > 0)
                     {
                         base.SelectedIndex = value;
                     }
@@ -106,7 +111,7 @@
             UseTallSize = true;
             MaxDropDownItems = 4;
 
-            Font = SkinManager.getFontByType(MaterialSkinManager.fontType.Subtitle2);
+            Font = SkinManager.GetFontByType(MaterialSkinManager.FontType.Subtitle2);
             BackColor = SkinManager.BackgroundColor;
             ForeColor = SkinManager.TextHighEmphasisColor;
             DrawMode = DrawMode.OwnerDrawVariable;
@@ -124,12 +129,18 @@
             DropDownClosed += (sender, args) =>
             {
                 MouseState = MouseState.OUT;
-                if (SelectedIndex < 0 && !Focused) _animationManager.StartNewAnimation(AnimationDirection.Out);
+                if (SelectedIndex < 0 && !Focused)
+                {
+                    _animationManager.StartNewAnimation(AnimationDirection.Out);
+                }
             };
             LostFocus += (sender, args) =>
             {
                 MouseState = MouseState.OUT;
-                if (SelectedIndex < 0) _animationManager.StartNewAnimation(AnimationDirection.Out);
+                if (SelectedIndex < 0)
+                {
+                    _animationManager.StartNewAnimation(AnimationDirection.Out);
+                }
             };
             DropDown += (sender, args) =>
             {
@@ -168,7 +179,10 @@
         {
             Graphics g = pevent.Graphics;
 
-            g.Clear(Parent.BackColor);
+            if (Parent != null)
+            {
+                g.Clear(Parent.BackColor);
+            }
             g.FillRectangle(Enabled ? Focused ?
                 SkinManager.BackgroundFocusBrush : // Focused
                 MouseState == MouseState.HOVER ?
@@ -178,18 +192,24 @@
                 , ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, LINE_Y);
 
             //Set color and brush
-            Color SelectedColor = new Color();
+            _ = new Color();
+            Color SelectedColor;
             if (UseAccent)
+            {
                 SelectedColor = SkinManager.ColorScheme.AccentColor;
+            }
             else
+            {
                 SelectedColor = SkinManager.ColorScheme.PrimaryColor;
+            }
+
             SolidBrush SelectedBrush = new SolidBrush(SelectedColor);
 
             // Create and Draw the arrow
             System.Drawing.Drawing2D.GraphicsPath pth = new System.Drawing.Drawing2D.GraphicsPath();
-            PointF TopRight = new PointF(this.Width - 0.5f - SkinManager.FORM_PADDING, (this.Height >> 1) - 2.5f);
-            PointF MidBottom = new PointF(this.Width - 4.5f - SkinManager.FORM_PADDING, (this.Height >> 1) + 2.5f);
-            PointF TopLeft = new PointF(this.Width - 8.5f - SkinManager.FORM_PADDING, (this.Height >> 1) - 2.5f);
+            PointF TopRight = new PointF(Width - 0.5f - SkinManager.FORM_PADDING, (Height >> 1) - 2.5f);
+            PointF MidBottom = new PointF(Width - 4.5f - SkinManager.FORM_PADDING, (Height >> 1) + 2.5f);
+            PointF TopLeft = new PointF(Width - 8.5f - SkinManager.FORM_PADDING, (Height >> 1) - 2.5f);
             pth.AddLine(TopLeft, TopRight);
             pth.AddLine(TopRight, MidBottom);
 
@@ -235,9 +255,9 @@
                 {
                     hintRect = new Rectangle(
                         SkinManager.FORM_PADDING,
-                        userTextPresent && !_animationManager.IsAnimating() ? (TEXT_SMALL_Y) : ClientRectangle.Y + (int)((TEXT_SMALL_Y - ClientRectangle.Y) * animationProgress),
+                        userTextPresent && !_animationManager.IsAnimating() ? TEXT_SMALL_Y : ClientRectangle.Y + (int)((TEXT_SMALL_Y - ClientRectangle.Y) * animationProgress),
                         Width,
-                        userTextPresent && !_animationManager.IsAnimating() ? (TEXT_SMALL_SIZE) : (int)(LINE_Y + (TEXT_SMALL_SIZE - LINE_Y) * animationProgress));
+                        userTextPresent && !_animationManager.IsAnimating() ? TEXT_SMALL_SIZE : (int)(LINE_Y + (TEXT_SMALL_SIZE - LINE_Y) * animationProgress));
                     hintTextSize = userTextPresent && !_animationManager.IsAnimating() ? 12 : (int)(16 + (12 - 16) * animationProgress);
                 }
 
@@ -250,7 +270,7 @@
             // Calc text Rect
             Rectangle textRect = new Rectangle(
                 SkinManager.FORM_PADDING,
-                hasHint && UseTallSize ? (hintRect.Y + hintRect.Height) - 2 : ClientRectangle.Y,
+                hasHint && UseTallSize ? hintRect.Y + hintRect.Height - 2 : ClientRectangle.Y,
                 ClientRectangle.Width - SkinManager.FORM_PADDING * 3 - 8,
                 hasHint && UseTallSize ? LINE_Y - (hintRect.Y + hintRect.Height) : LINE_Y);
 
@@ -261,7 +281,7 @@
                 // Draw user text
                 NativeText.DrawTransparentText(
                     Text,
-                    SkinManager.getLogFontByType(MaterialSkinManager.fontType.Subtitle1),
+                    SkinManager.GetLogFontByType(MaterialSkinManager.FontType.Subtitle1),
                     Enabled ? SkinManager.TextHighEmphasisColor : SkinManager.TextDisabledOrHintColor,
                     textRect.Location,
                     textRect.Size,
@@ -277,7 +297,7 @@
                 {
                     NativeText.DrawTransparentText(
                     Hint,
-                    SkinManager.getTextBoxFontBySize(hintTextSize),
+                    SkinManager.GetTextBoxFontBySize(hintTextSize),
                     Enabled ? DroppedDown || Focused ? 
                     SelectedColor : // Focus 
                     SkinManager.TextMediumEmphasisColor : // not focused
@@ -289,14 +309,17 @@
             }
         }
 
-        private void CustomMeasureItem(object sender, System.Windows.Forms.MeasureItemEventArgs e)
+        private void CustomMeasureItem(object? sender, MeasureItemEventArgs e)
         {
             e.ItemHeight = HEIGHT - 7;
         }
 
-        private void CustomDrawItem(object sender, System.Windows.Forms.DrawItemEventArgs e)
+        private void CustomDrawItem(object? sender, DrawItemEventArgs e)
         {
-            if (e.Index < 0 || e.Index > Items.Count || !Focused) return;
+            if (e.Index < 0 || e.Index > Items.Count || !Focused)
+            {
+                return;
+            }
 
             Graphics g = e.Graphics;
 
@@ -308,35 +331,40 @@
             {
                 g.FillRectangle(SkinManager.BackgroundHoverBrush, e.Bounds);
             }
-            
-            string Text = "";
-            if (!string.IsNullOrWhiteSpace(DisplayMember))
+
+            string? Text = string.Empty;
+            var currentItem = Items[e.Index];
+            if (!string.IsNullOrWhiteSpace(DisplayMember) && currentItem != null)
             {
-                if (!Items[e.Index].GetType().Equals(typeof(DataRowView)))
+                if (!currentItem.GetType().Equals(typeof(DataRowView)))
                 {
-                    var item = Items[e.Index].GetType().GetProperty(DisplayMember).GetValue(Items[e.Index]);
-                    Text = item.ToString();
+                    object? item = currentItem.GetType().GetProperty(DisplayMember)?.GetValue(currentItem);
+                    Text = item?.ToString();
                 }
                 else
                 {
-                    var table = ((DataRow)Items[e.Index].GetType().GetProperty("Row").GetValue(Items[e.Index])).Table;
-                    Text = table.Rows[e.Index][DisplayMember].ToString();
+                    object? item = currentItem.GetType().GetProperty("Row")?.GetValue(currentItem);
+                    if (item is DataRow dataRow)
+                    {
+                        DataTable table = dataRow.Table;
+                        Text = table.Rows[e.Index][DisplayMember].ToString();
+                    }
                 }
             }
             else
             {
-                Text = Items[e.Index].ToString();
+                Text = currentItem?.ToString();
             }
 
             using (NativeTextRenderer NativeText = new NativeTextRenderer(g))
             {
                 NativeText.DrawTransparentText(
-                Text,
-                SkinManager.getFontByType(MaterialSkinManager.fontType.Subtitle1),
-                SkinManager.TextHighEmphasisNoAlphaColor,
-                new Point(e.Bounds.Location.X + SkinManager.FORM_PADDING, e.Bounds.Location.Y),
-                new Size(e.Bounds.Size.Width - SkinManager.FORM_PADDING * 2, e.Bounds.Size.Height),
-                NativeTextRenderer.TextAlignFlags.Left | NativeTextRenderer.TextAlignFlags.Middle); ;
+                    Text ?? string.Empty,
+                    SkinManager.GetFontByType(MaterialSkinManager.FontType.Subtitle1),
+                    SkinManager.TextHighEmphasisNoAlphaColor,
+                    new Point(e.Bounds.Location.X + SkinManager.FORM_PADDING, e.Bounds.Location.Y),
+                    new Size(e.Bounds.Size.Width - SkinManager.FORM_PADDING * 2, e.Bounds.Size.Height),
+                    NativeTextRenderer.TextAlignFlags.Left | NativeTextRenderer.TextAlignFlags.Middle);
             }
         }
 
@@ -348,18 +376,18 @@
             DrawItem += CustomDrawItem;
             DropDownStyle = ComboBoxStyle.DropDownList;
             DrawMode = DrawMode.OwnerDrawVariable;
-            recalculateAutoSize();
-            setHeightVars();
+            RecalculateAutoSize();
+            SetHeightVars();
         }
 
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            recalculateAutoSize();
-            setHeightVars();
+            RecalculateAutoSize();
+            SetHeightVars();
         }
 
-        private void setHeightVars()
+        private void SetHeightVars()
         {
             HEIGHT = UseTallSize ? 50 : 36;
             Size = new Size(Size.Width, HEIGHT);
@@ -368,9 +396,12 @@
             DropDownHeight = ItemHeight * MaxDropDownItems + 2;
         }
 
-        public void recalculateAutoSize()
+        public void RecalculateAutoSize()
         {
-            if (!AutoResize) return;
+            if (!AutoResize)
+            {
+                return;
+            }
 
             int w = DropDownWidth;
             int padding = SkinManager.FORM_PADDING * 3;
@@ -379,11 +410,14 @@
             Graphics g = CreateGraphics();
             using (NativeTextRenderer NativeText = new NativeTextRenderer(g))
             {
-                var itemsList = this.Items.Cast<object>().Select(item => item.ToString());
-                foreach (string s in itemsList)
+                IEnumerable<string?> itemsList = Items.Cast<object>().Select(item => item.ToString());
+                foreach (string? s in itemsList)
                 {
-                    int newWidth = NativeText.MeasureLogString(s, SkinManager.getLogFontByType(MaterialSkinManager.fontType.Subtitle1)).Width + vertScrollBarWidth + padding;
-                    if (w < newWidth) w = newWidth;
+                    int newWidth = NativeText.MeasureLogString(s ?? string.Empty, SkinManager.GetLogFontByType(MaterialSkinManager.FontType.Subtitle1)).Width + vertScrollBarWidth + padding;
+                    if (w < newWidth)
+                    {
+                        w = newWidth;
+                    }
                 }
             }
 

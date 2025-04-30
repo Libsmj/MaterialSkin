@@ -10,12 +10,14 @@
     public class MaterialFloatingActionButton : Button, IMaterialControl
     {
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Depth { get; set; }
 
         [Browsable(false)]
         public MaterialSkinManager SkinManager => MaterialSkinManager.Instance;
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MouseState MouseState { get; set; }
 
         private const int FAB_SIZE = 56;
@@ -39,9 +41,8 @@
             get { return _mini; }
             set
             {
-                if (Parent != null)
-                    Parent.Invalidate();
-                setSize(value);
+                Parent?.Invalidate();
+                SetSize(value);
             }
         }
 
@@ -95,39 +96,59 @@
                 AnimationType = AnimationType.EaseOut
             };
             _showAnimationManager.OnAnimationProgress += sender => Invalidate();
-            _showAnimationManager.OnAnimationFinished += _showAnimationManager_OnAnimationFinished;
+            _showAnimationManager.OnAnimationFinished += ShowAnimationManager_OnAnimationFinished;
         }
 
         protected override void InitLayout()
         {
-            LocationChanged += (sender, e) => { if (DrawShadows) Parent?.Invalidate(); };
+            LocationChanged += (sender, e) => { if (DrawShadows) { Parent?.Invalidate(); } };
         }
 
         protected override void OnParentChanged(EventArgs e)
         {
             base.OnParentChanged(e);
-            if (DrawShadows && Parent != null) AddShadowPaintEvent(Parent, drawShadowOnParent);
-            if (_oldParent != null) RemoveShadowPaintEvent(_oldParent, drawShadowOnParent);
+            if (DrawShadows && Parent != null)
+            {
+                AddShadowPaintEvent(Parent, DrawShadowOnParent);
+            }
+
+            if (_oldParent != null)
+            {
+                RemoveShadowPaintEvent(_oldParent, DrawShadowOnParent);
+            }
+
             _oldParent = Parent;
         }
 
-        private Control _oldParent;
+        private Control? _oldParent;
 
         protected override void OnVisibleChanged(EventArgs e)
         {
             base.OnVisibleChanged(e);
-            if (Parent == null) return;
+            if (Parent == null)
+            {
+                return;
+            }
+
             if (Visible)
-                AddShadowPaintEvent(Parent, drawShadowOnParent);
+            {
+                AddShadowPaintEvent(Parent, DrawShadowOnParent);
+            }
             else
-                RemoveShadowPaintEvent(Parent, drawShadowOnParent);
+            {
+                RemoveShadowPaintEvent(Parent, DrawShadowOnParent);
+            }
         }
 
         private bool _shadowDrawEventSubscribed = false;
 
         private void AddShadowPaintEvent(Control control, PaintEventHandler shadowPaintEvent)
         {
-            if (_shadowDrawEventSubscribed) return;
+            if (_shadowDrawEventSubscribed)
+            {
+                return;
+            }
+
             control.Paint += shadowPaintEvent;
             control.Invalidate();
             _shadowDrawEventSubscribed = true;
@@ -135,13 +156,17 @@
 
         private void RemoveShadowPaintEvent(Control control, PaintEventHandler shadowPaintEvent)
         {
-            if (!_shadowDrawEventSubscribed) return;
+            if (!_shadowDrawEventSubscribed)
+            {
+                return;
+            }
+
             control.Paint -= shadowPaintEvent;
             control.Invalidate();
             _shadowDrawEventSubscribed = false;
         }
 
-        private void setSize(bool mini)
+        private void SetSize(bool mini)
         {
             _mini = mini;
             Size = _mini ? new Size(FAB_MINI_SIZE, FAB_MINI_SIZE) : new Size(FAB_SIZE, FAB_SIZE);
@@ -150,7 +175,7 @@
             fabBounds.Height -= 1;
         }
 
-        private void _showAnimationManager_OnAnimationFinished(object sender)
+        private void ShowAnimationManager_OnAnimationFinished(object? sender)
         {
             if (_isHiding)
             {
@@ -159,11 +184,11 @@
             }
         }
 
-        private void drawShadowOnParent(object sender, PaintEventArgs e)
+        private void DrawShadowOnParent(object? sender, PaintEventArgs e)
         {
-            if (Parent == null)
+            if (Parent == null && sender is Control control)
             {
-                RemoveShadowPaintEvent((Control)sender, drawShadowOnParent);
+                RemoveShadowPaintEvent(control, DrawShadowOnParent);
                 return;
             }
 
@@ -178,9 +203,12 @@
 
         protected override void OnPaint(PaintEventArgs pevent)
         {
-            var g = pevent.Graphics;
+            Graphics g = pevent.Graphics;
 
-            g.Clear(Parent.BackColor);
+            if (Parent != null)
+            {
+                g.Clear(Parent.BackColor);
+            }
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Paint shadow on element to blend with the parent shadow
@@ -204,10 +232,10 @@
 
                 for (int i = 0; i < _animationManager.GetAnimationCount(); i++)
                 {
-                    var animationValue = _animationManager.GetProgress(i);
-                    var animationSource = _animationManager.GetSource(i);
-                    var rippleBrush = new SolidBrush(Color.FromArgb((int)(51 - (animationValue * 50)), Color.White));
-                    var rippleSize = (int)(animationValue * Width * 2);
+                    double animationValue = _animationManager.GetProgress(i);
+                    Point animationSource = _animationManager.GetSource(i);
+                    SolidBrush rippleBrush = new SolidBrush(Color.FromArgb((int)(51 - (animationValue * 50)), Color.White));
+                    int rippleSize = (int)(animationValue * Width * 2);
                     g.FillEllipse(rippleBrush, new Rectangle(animationSource.X - rippleSize / 2, animationSource.Y - rippleSize / 2, rippleSize, rippleSize));
                 }
 
@@ -224,8 +252,8 @@
                 int target = Convert.ToInt32((_mini ? FAB_MINI_SIZE : FAB_SIZE) * _showAnimationManager.GetProgress());
                 fabBounds.Width = target == 0 ? 1 : target;
                 fabBounds.Height = target == 0 ? 1 : target;
-                fabBounds.X = Convert.ToInt32(((_mini ? FAB_MINI_SIZE : FAB_SIZE) / 2) - (((_mini ? FAB_MINI_SIZE : FAB_SIZE) / 2) * _showAnimationManager.GetProgress()));
-                fabBounds.Y = Convert.ToInt32(((_mini ? FAB_MINI_SIZE : FAB_SIZE) / 2) - (((_mini ? FAB_MINI_SIZE : FAB_SIZE) / 2) * _showAnimationManager.GetProgress()));
+                fabBounds.X = Convert.ToInt32(((_mini ? FAB_MINI_SIZE : FAB_SIZE) / 2) - ((_mini ? FAB_MINI_SIZE : FAB_SIZE) / 2 * _showAnimationManager.GetProgress()));
+                fabBounds.Y = Convert.ToInt32(((_mini ? FAB_MINI_SIZE : FAB_SIZE) / 2) - ((_mini ? FAB_MINI_SIZE : FAB_SIZE) / 2 * _showAnimationManager.GetProgress()));
             }
 
             // Clip to a round shape with a 1px padding
@@ -245,7 +273,9 @@
             base.OnMouseMove(e);
 
             if (DesignMode)
+            {
                 return;
+            }
 
             _mouseHover = ClientRectangle.Contains(e.Location);
             Invalidate();
@@ -255,7 +285,9 @@
         {
             base.OnMouseLeave(e);
             if (DesignMode)
+            {
                 return;
+            }
 
             _mouseHover = false;
             Invalidate();
@@ -267,11 +299,10 @@
 
             if (DrawShadows && Parent != null)
             {
-                RemoveShadowPaintEvent(Parent, drawShadowOnParent);
-                AddShadowPaintEvent(Parent, drawShadowOnParent);
+                RemoveShadowPaintEvent(Parent, DrawShadowOnParent);
+                AddShadowPaintEvent(Parent, DrawShadowOnParent);
             }
         }
-
 
         private Point origin;
 

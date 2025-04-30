@@ -1,5 +1,6 @@
 ﻿namespace MaterialSkin.Controls
 {
+    using MaterialSkin;
     using System.ComponentModel;
     using System.Drawing;
     using System.Windows.Forms;
@@ -7,12 +8,14 @@
     public class MaterialLabel : Label, IMaterialControl
     {
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Depth { get; set; }
 
         [Browsable(false)]
         public MaterialSkinManager SkinManager => MaterialSkinManager.Instance;
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MouseState MouseState { get; set; }
 
         private ContentAlignment _TextAlign = ContentAlignment.TopLeft;
@@ -27,7 +30,7 @@
             set
             {
                 _TextAlign = value;
-                updateAligment();
+                UpdateAligment();
                 Invalidate();
             }
         }
@@ -40,11 +43,11 @@
         DefaultValue(false)]
         public bool UseAccent { get; set; }
 
-        private MaterialSkinManager.fontType _fontType = MaterialSkinManager.fontType.Body1;
+        private MaterialSkinManager.FontType _fontType = MaterialSkinManager.FontType.Body1;
 
         [Category("Material Skin"),
-        DefaultValue(typeof(MaterialSkinManager.fontType), "Body1")]
-        public MaterialSkinManager.fontType FontType
+        DefaultValue(typeof(MaterialSkinManager.FontType), "Body1")]
+        public MaterialSkinManager.FontType FontType
         {
             get
             {
@@ -53,14 +56,14 @@
             set
             {
                 _fontType = value;
-                Font = SkinManager.getFontByType(_fontType);
+                Font = SkinManager.GetFontByType(_fontType);
                 Refresh();
             }
         }
 
         public MaterialLabel()
         {
-            FontType = MaterialSkinManager.fontType.Body1;
+            FontType = MaterialSkinManager.FontType.Body1;
             TextAlign = ContentAlignment.TopLeft;
         }
 
@@ -71,7 +74,7 @@
                 Size strSize;
                 using (NativeTextRenderer NativeText = new NativeTextRenderer(CreateGraphics()))
                 {
-                    strSize = NativeText.MeasureLogString(Text, SkinManager.getLogFontByType(_fontType));
+                    strSize = NativeText.MeasureLogString(Text, SkinManager.GetLogFontByType(_fontType));
                     strSize.Width += 1; // necessary to avoid a bug when autosize = true
                 }
                 return strSize;
@@ -84,7 +87,7 @@
 
         private NativeTextRenderer.TextAlignFlags Alignment;
 
-        private void updateAligment()
+        private void UpdateAligment()
         {
             switch (_TextAlign)
             {
@@ -133,17 +136,20 @@
         protected override void OnPaint(PaintEventArgs e)
         {
             Graphics g = e.Graphics;
-            g.Clear(Parent.BackColor);
+            if (Parent != null)
+            {
+                g.Clear(Parent.BackColor);
+            }
 
             // Draw Text
             using (NativeTextRenderer NativeText = new NativeTextRenderer(g))
             {
                 NativeText.DrawMultilineTransparentText(
                     Text,
-                    SkinManager.getLogFontByType(_fontType),
+                    SkinManager.GetLogFontByType(_fontType),
                     Enabled ? HighEmphasis ? UseAccent ?
                     SkinManager.ColorScheme.AccentColor : // High emphasis, accent
-                    (SkinManager.Theme == MaterialSkin.MaterialSkinManager.Themes.LIGHT) ?
+                    (SkinManager.Theme == MaterialSkinManager.Themes.LIGHT) ?
                     SkinManager.ColorScheme.PrimaryColor : // High emphasis, primary Light theme
                     SkinManager.ColorScheme.PrimaryColor.Lighten(0.25f) : // High emphasis, primary Dark theme
                     SkinManager.TextHighEmphasisColor : // Normal
@@ -156,7 +162,7 @@
 
         protected override void InitLayout()
         {
-            Font = SkinManager.getFontByType(_fontType);
+            Font = SkinManager.GetFontByType(_fontType);
         }
     }
 }

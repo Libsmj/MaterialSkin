@@ -22,10 +22,12 @@ namespace MaterialSkin.Controls
     {
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Depth { get; set; }
         [Browsable(false)]
         public MaterialSkinManager SkinManager { get { return MaterialSkinManager.Instance; } }
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MouseState MouseState { get; set; }
 
         private bool useAccentColor;
@@ -50,10 +52,7 @@ namespace MaterialSkin.Controls
         {
             if (oldValue != newValue)
             {
-                if (ValueChanged != null)
-                {
-                    ValueChanged(this, curValue);
-                }
+                ValueChanged?.Invoke(this, curValue);
             }
 
             if (Scroll == null)
@@ -130,7 +129,7 @@ namespace MaterialSkin.Controls
                 }
                 else
                 {
-                    throw new ArgumentOutOfRangeException("value", "MouseWheelBarPartitions has to be greather than zero");
+                    throw new ArgumentOutOfRangeException(nameof(value), "MouseWheelBarPartitions has to be greather than zero");
                 }
             }
         }
@@ -153,9 +152,13 @@ namespace MaterialSkin.Controls
             set
             {
                 if (Orientation == MaterialScrollOrientation.Vertical)
+                {
                     Width = value;
+                }
                 else
+                {
                     Height = value;
+                }
             }
         }
 
@@ -170,12 +173,17 @@ namespace MaterialSkin.Controls
         private MaterialScrollOrientation MaterialOrientation = MaterialScrollOrientation.Vertical;
         private ScrollOrientation scrollOrientation = ScrollOrientation.VerticalScroll;
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MaterialScrollOrientation Orientation
         {
             get { return MaterialOrientation; }
             set
             {
-                if (value == MaterialOrientation) return;
+                if (value == MaterialOrientation)
+                {
+                    return;
+                }
+
                 MaterialOrientation = value;
                 scrollOrientation = value == MaterialScrollOrientation.Vertical ? ScrollOrientation.VerticalScroll : ScrollOrientation.HorizontalScroll;
                 Size = new Size(Height, Width);
@@ -328,13 +336,17 @@ namespace MaterialSkin.Controls
                 if (!dontUpdateColor && highlightOnWheel)
                 {
                     if (!isHovered)
+                    {
                         isHovered = true;
+                    }
 
                     if (autoHoverTimer == null)
                     {
-                        autoHoverTimer = new Timer();
-                        autoHoverTimer.Interval = 1000;
-                        autoHoverTimer.Tick += new EventHandler(autoHoverTimer_Tick);
+                        autoHoverTimer = new Timer
+                        {
+                            Interval = 1000
+                        };
+                        autoHoverTimer.Tick += new EventHandler(AutoHoverTimer_Tick);
                         autoHoverTimer.Start();
                     }
                     else
@@ -352,14 +364,14 @@ namespace MaterialSkin.Controls
             }
         }
 
-        private void autoHoverTimer_Tick(object sender, EventArgs e)
+        private void AutoHoverTimer_Tick(object? sender, EventArgs e)
         {
             isHovered = false;
             Invalidate();
-            autoHoverTimer.Stop();
+            autoHoverTimer?.Stop();
         }
 
-        private Timer autoHoverTimer = null;
+        private Timer? autoHoverTimer = null;
 
         #endregion
 
@@ -406,14 +418,14 @@ namespace MaterialSkin.Controls
         [SecuritySafeCritical]
         public void BeginUpdate()
         {
-            SendMessage(Handle, WM_SETREDRAW, 0, 0);
+            _ = SendMessage(Handle, WM_SETREDRAW, 0, 0);
             inUpdate = true;
         }
 
         [SecuritySafeCritical]
         public void EndUpdate()
         {
-            SendMessage(Handle, WM_SETREDRAW, 1, 0);
+            _ = SendMessage(Handle, WM_SETREDRAW, 1, 0);
             inUpdate = false;
             SetupScrollBar();
             Refresh();
@@ -423,12 +435,14 @@ namespace MaterialSkin.Controls
 
         #region Paint Methods
 
-
         protected override void OnPaintBackground(PaintEventArgs e)
         {
             try
             {
-                e.Graphics.Clear(Parent.BackColor);
+                if (Parent != null)
+                {
+                    e.Graphics.Clear(Parent.BackColor);
+                }
             }
             catch (Exception ex)
             {
@@ -623,7 +637,7 @@ namespace MaterialSkin.Controls
                     int oldScrollValue = curValue;
 
                     int pos = MaterialOrientation == MaterialScrollOrientation.Vertical ? e.Location.Y : e.Location.X;
-                    int thumbSize = MaterialOrientation == MaterialScrollOrientation.Vertical ? (pos / Height) / thumbHeight : (pos / Width) / thumbWidth;
+                    int thumbSize = MaterialOrientation == MaterialScrollOrientation.Vertical ? pos / Height / thumbHeight : pos / Width / thumbWidth;
 
                     if (pos <= (thumbTopLimit + thumbPosition))
                     {
@@ -658,7 +672,7 @@ namespace MaterialSkin.Controls
 
                         if (pixelRange != 0)
                         {
-                            perc = (thumbPos) / (float)pixelRange;
+                            perc = thumbPos / (float)pixelRange;
                         }
 
                         curValue = Convert.ToInt32((perc * (maximum - minimum)) + minimum);
@@ -801,7 +815,10 @@ namespace MaterialSkin.Controls
 
         private void SetupScrollBar()
         {
-            if (inUpdate) return;
+            if (inUpdate)
+            {
+                return;
+            }
 
             if (Orientation == MaterialScrollOrientation.Vertical)
             {
@@ -847,7 +864,7 @@ namespace MaterialSkin.Controls
             Refresh();
         }
 
-        private void ProgressTimerTick(object sender, EventArgs e)
+        private void ProgressTimerTick(object? sender, EventArgs e)
         {
             ProgressThumb(true);
         }
@@ -887,7 +904,7 @@ namespace MaterialSkin.Controls
                 return 0;
             }
 
-            int thumbSize = MaterialOrientation == MaterialScrollOrientation.Vertical ? (thumbPosition / Height) / thumbHeight : (thumbPosition / Width) / thumbWidth;
+            int thumbSize = MaterialOrientation == MaterialScrollOrientation.Vertical ? thumbPosition / Height / thumbHeight : thumbPosition / Width / thumbWidth;
 
             if (Orientation == MaterialScrollOrientation.Vertical)
             {
@@ -906,7 +923,7 @@ namespace MaterialSkin.Controls
                 perc = (curValue - (float)minimum) / realRange;
             }
 
-            return Math.Max(thumbTopLimit, Math.Min(thumbBottomLimitTop, Convert.ToInt32((perc * pixelRange))));
+            return Math.Max(thumbTopLimit, Math.Min(thumbBottomLimitTop, Convert.ToInt32(perc * pixelRange)));
         }
 
         private int GetThumbSize()
@@ -920,7 +937,7 @@ namespace MaterialSkin.Controls
                 return trackSize;
             }
 
-            float newThumbSize = (largeChange * (float)trackSize) / maximum;
+            float newThumbSize = largeChange * (float)trackSize / maximum;
 
             return Convert.ToInt32(Math.Min(trackSize, Math.Max(newThumbSize, 10f)));
         }
@@ -972,7 +989,7 @@ namespace MaterialSkin.Controls
                 thumbSize = thumbRectangle.Width;
             }
 
-            if ((bottomBarClicked && (thumbPos + thumbSize) < trackPosition))
+            if (bottomBarClicked && (thumbPos + thumbSize) < trackPosition)
             {
                 type = ScrollEventType.LargeIncrement;
 
@@ -989,7 +1006,7 @@ namespace MaterialSkin.Controls
                     ChangeThumbPosition(Math.Min(thumbBottomLimitTop, GetThumbPosition()));
                 }
             }
-            else if ((topBarClicked && thumbPos > trackPosition))
+            else if (topBarClicked && thumbPos > trackPosition)
             {
                 type = ScrollEventType.LargeDecrement;
 

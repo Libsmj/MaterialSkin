@@ -1,13 +1,6 @@
-using MaterialSkin.Animations;
-using System;
-using System.Configuration;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
-using System.Windows.Forms;
-
 
 namespace MaterialSkin.Controls
 {
@@ -16,8 +9,8 @@ namespace MaterialSkin.Controls
 
         #region "Private members"
 
-        private MaterialButton _validationButton;
-        private MaterialButton _cancelButton;
+        private readonly MaterialButton _validationButton;
+        private readonly MaterialButton _cancelButton;
 
         private const int _expansionPanelDefaultPadding = 16;
         private const int _leftrightPadding = 24;
@@ -64,17 +57,19 @@ namespace MaterialSkin.Controls
 
         private ButtonState _buttonState = ButtonState.None;
 
-
         #endregion
-
 
         #region "Public Properties"
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Depth { get; set; }
+
         [Browsable(false)]
         public MaterialSkinManager SkinManager { get { return MaterialSkinManager.Instance; } }
+
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MouseState MouseState { get; set; }
 
         [Category("Material Skin"), DefaultValue(false), DisplayName("Use Accent Color")]
@@ -139,7 +134,7 @@ namespace MaterialSkin.Controls
         public int ExpandHeight
         {
             get { return _expandHeight; }
-            set { if (value < _minHeight) value = _minHeight; _expandHeight = value; Invalidate(); }
+            set { if (value < _minHeight) { value = _minHeight; } _expandHeight = value; Invalidate(); }
         }
 
         [DefaultValue(true)]
@@ -187,9 +182,7 @@ namespace MaterialSkin.Controls
             set { _savebuttonEnable = value; UpdateRects(); Invalidate(); }
         }
 
-
         #endregion
-
 
         #region "Events"
 
@@ -208,7 +201,6 @@ namespace MaterialSkin.Controls
         [Category("Disposition")]
         [Description("Fires when Panel Expand")]
         public event EventHandler PanelExpand;
-
 
         #endregion
 
@@ -263,13 +255,13 @@ namespace MaterialSkin.Controls
                 Controls.Add(_cancelButton);
             }
 
-            _validationButton.Click += _validationButton_Click;
-            _cancelButton.Click += _cancelButton_Click;
+            _validationButton.Click += ValidationButton_Click;
+            _cancelButton.Click += CancelButton_Click;
 	    
             UpdateRects();
         }
 
-        private void _cancelButton_Click(object sender, EventArgs e)
+        private void CancelButton_Click(object? sender, EventArgs e)
         {
             //throw new NotImplementedException();
             CancelClick?.Invoke(this, new EventArgs());
@@ -278,7 +270,7 @@ namespace MaterialSkin.Controls
 
         }
 
-        private void _validationButton_Click(object sender, EventArgs e)
+        private void ValidationButton_Click(object? sender, EventArgs e)
         {
             //throw new NotImplementedException();
             SaveClick?.Invoke(this, new EventArgs());
@@ -287,11 +279,10 @@ namespace MaterialSkin.Controls
 
         }
 
-
         protected override void OnCreateControl()
         {
             base.OnCreateControl();
-            Font = SkinManager.getFontByType(MaterialSkinManager.fontType.Body1);
+            Font = SkinManager.GetFontByType(MaterialSkinManager.FontType.Body1);
         }
 
         protected override void InitLayout()
@@ -303,32 +294,51 @@ namespace MaterialSkin.Controls
         protected override void OnParentChanged(EventArgs e)
         {
             base.OnParentChanged(e);
-            if (Parent != null) AddShadowPaintEvent(Parent, drawShadowOnParent);
-            if (_oldParent != null) RemoveShadowPaintEvent(_oldParent, drawShadowOnParent);
+            if (Parent != null)
+            {
+                AddShadowPaintEvent(Parent, drawShadowOnParent);
+            }
+
+            if (_oldParent != null)
+            {
+                RemoveShadowPaintEvent(_oldParent, drawShadowOnParent);
+            }
+
             _oldParent = Parent;
         }
 
-        private Control _oldParent;
+        private Control? _oldParent;
 
         protected override void OnVisibleChanged(EventArgs e)
         {
             base.OnVisibleChanged(e);
-            if (Parent == null) return;
-            if (Visible)
-                AddShadowPaintEvent(Parent, drawShadowOnParent);
-            else
-                RemoveShadowPaintEvent(Parent, drawShadowOnParent);
-        }
-
-        private void drawShadowOnParent(object sender, PaintEventArgs e)
-        {
             if (Parent == null)
             {
-                RemoveShadowPaintEvent((Control)sender, drawShadowOnParent);
                 return;
             }
 
-            if (!_drawShadows || Parent == null) return;
+            if (Visible)
+            {
+                AddShadowPaintEvent(Parent, drawShadowOnParent);
+            }
+            else
+            {
+                RemoveShadowPaintEvent(Parent, drawShadowOnParent);
+            }
+        }
+
+        private void drawShadowOnParent(object? sender, PaintEventArgs e)
+        {
+            if (Parent == null && sender is Control control)
+            {
+                RemoveShadowPaintEvent(control, drawShadowOnParent);
+                return;
+            }
+
+            if (!_drawShadows || Parent == null)
+            {
+                return;
+            }
 
             // paint shadow on parent
             Graphics gp = e.Graphics;
@@ -337,10 +347,13 @@ namespace MaterialSkin.Controls
             DrawHelper.DrawSquareShadow(gp, rect);
         }
 
-
         private void AddShadowPaintEvent(Control control, PaintEventHandler shadowPaintEvent)
         {
-            if (_shadowDrawEventSubscribed) return;
+            if (_shadowDrawEventSubscribed)
+            {
+                return;
+            }
+
             control.Paint += shadowPaintEvent;
             control.Invalidate();
             _shadowDrawEventSubscribed = true;
@@ -348,7 +361,11 @@ namespace MaterialSkin.Controls
 
         private void RemoveShadowPaintEvent(Control control, PaintEventHandler shadowPaintEvent)
         {
-            if (!_shadowDrawEventSubscribed) return;
+            if (!_shadowDrawEventSubscribed)
+            {
+                return;
+            }
+
             control.Paint -= shadowPaintEvent;
             control.Invalidate();
             _shadowDrawEventSubscribed = false;
@@ -368,7 +385,10 @@ namespace MaterialSkin.Controls
                 {
                     _expandHeight = Height;
                 }
-                if (Height < _minHeight) Height = _minHeight;
+                if (Height < _minHeight)
+                {
+                    Height = _minHeight;
+                }
             }
             else
             {
@@ -378,7 +398,7 @@ namespace MaterialSkin.Controls
             base.OnResize(e);
 
             _headerBounds = new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, _headerHeight);
-            _expandcollapseBounds = new Rectangle((Width) - _leftrightPadding - _expandcollapsbuttonsize, (int)((_headerHeight - _expandcollapsbuttonsize) / 2), _expandcollapsbuttonsize, _expandcollapsbuttonsize);
+            _expandcollapseBounds = new Rectangle(Width - _leftrightPadding - _expandcollapsbuttonsize, (_headerHeight - _expandcollapsbuttonsize) / 2, _expandcollapsbuttonsize, _expandcollapsbuttonsize);
 
             UpdateRects();
 
@@ -394,14 +414,20 @@ namespace MaterialSkin.Controls
             base.OnMouseMove(e);
 
             if (DesignMode)
+            {
                 return;
+            }
 
-            var oldState = _buttonState;
+            ButtonState oldState = _buttonState;
 
             if (_savebuttonBounds.Contains(e.Location))
+            {
                 _buttonState = ButtonState.SaveOver;
+            }
             else if (_cancelbuttonBounds.Contains(e.Location))
+            {
                 _buttonState = ButtonState.CancelOver;
+            }
             else if (_expandcollapseBounds.Contains(e.Location))
             {
                 Cursor = Cursors.Hand;
@@ -418,8 +444,10 @@ namespace MaterialSkin.Controls
                 _buttonState = ButtonState.None;
             }
 
-            if (oldState != _buttonState) Invalidate();
-
+            if (oldState != _buttonState)
+            {
+                Invalidate();
+            }
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
@@ -432,7 +460,9 @@ namespace MaterialSkin.Controls
             else
             {
                 if (DesignMode)
+                {
                     return;
+                }
             }
 
              base.OnMouseDown(e);
@@ -442,20 +472,24 @@ namespace MaterialSkin.Controls
         {
             base.OnMouseLeave(e);
             if (DesignMode)
+            {
                 return;
+            }
 
             Cursor = Cursors.Arrow;
             _buttonState = ButtonState.None;
             Invalidate();
         }
 
-
         protected override void OnPaint(PaintEventArgs e)
         {
-            var g = e.Graphics;
+            Graphics g = e.Graphics;
             g.TextRenderingHint = TextRenderingHint.AntiAlias;
 
-            g.Clear(Parent.BackColor);
+            if (Parent != null)
+            {
+                g.Clear(Parent.BackColor);
+            }
 
             // card rectangle path
             RectangleF expansionPanelRectF = new RectangleF(ClientRectangle.Location, ClientRectangle.Size);
@@ -468,7 +502,7 @@ namespace MaterialSkin.Controls
 
             // Draw expansion panel
             // Disabled
-            if (!Enabled)
+            if (!Enabled && Parent != null)
             {
                 using (SolidBrush disabledBrush = new SolidBrush(DrawHelper.BlendColor(Parent.BackColor, SkinManager.BackgroundDisabledColor, SkinManager.BackgroundDisabledColor.A)))
                 {
@@ -509,7 +543,7 @@ namespace MaterialSkin.Controls
                 // Draw header text
                 NativeText.DrawTransparentText(
                     _titleHeader,
-                    SkinManager.getLogFontByType(MaterialSkinManager.fontType.Body1),
+                    SkinManager.GetLogFontByType(MaterialSkinManager.FontType.Body1),
                     Enabled ? SkinManager.TextHighEmphasisColor : SkinManager.TextDisabledOrHintColor,
                     headerRect.Location,
                     headerRect.Size,
@@ -531,7 +565,7 @@ namespace MaterialSkin.Controls
                     // Draw description header text 
                     NativeText.DrawTransparentText(
                     _descriptionHeader,
-                    SkinManager.getLogFontByType(MaterialSkinManager.fontType.Body1),
+                    SkinManager.GetLogFontByType(MaterialSkinManager.FontType.Body1),
                      SkinManager.TextDisabledOrHintColor,
                     headerDescriptionRect.Location,
                     headerDescriptionRect.Size,
@@ -541,12 +575,12 @@ namespace MaterialSkin.Controls
 
             if (_showCollapseExpand==true)
             {
-                using (var formButtonsPen = new Pen(_useAccentColor && Enabled ? SkinManager.ColorScheme.AccentColor : SkinManager.TextDisabledOrHintColor, 2))
+                using (Pen formButtonsPen = new Pen(_useAccentColor && Enabled ? SkinManager.ColorScheme.AccentColor : SkinManager.TextDisabledOrHintColor, 2))
                 {
                     if (_collapse)
                     {
                         //Draw Expand button
-                        System.Drawing.Drawing2D.GraphicsPath pth = new System.Drawing.Drawing2D.GraphicsPath();
+                        GraphicsPath pth = new GraphicsPath();
                         PointF TopLeft = new PointF(_expandcollapseBounds.X + 6, _expandcollapseBounds.Y + 9);
                         PointF MidBottom = new PointF(_expandcollapseBounds.X + 12, _expandcollapseBounds.Y + 15);
                         PointF TopRight = new PointF(_expandcollapseBounds.X + 18, _expandcollapseBounds.Y + 9);
@@ -557,7 +591,7 @@ namespace MaterialSkin.Controls
                     else
                     {
                         // Draw Collapse button
-                        System.Drawing.Drawing2D.GraphicsPath pth = new System.Drawing.Drawing2D.GraphicsPath();
+                        GraphicsPath pth = new GraphicsPath();
                         PointF BottomLeft = new PointF(_expandcollapseBounds.X + 6, _expandcollapseBounds.Y + 15);
                         PointF MidTop = new PointF(_expandcollapseBounds.X + 12, _expandcollapseBounds.Y + 9);
                         PointF BottomRight = new PointF(_expandcollapseBounds.X + 18, _expandcollapseBounds.Y + 15);
@@ -582,24 +616,22 @@ namespace MaterialSkin.Controls
             if (_collapse)
             {
                 _headerHeight = _headerHeightCollapse;
-                this.Height = _headerHeightCollapse;
+                Height = _headerHeightCollapse;
                 Margin = new Padding(16, 1, 16, 0);
 
                 // Is the event registered?
-                if (PanelCollapse != null)
-                    // Raise the event
-                    this.PanelCollapse(this, new EventArgs());
+                // Raise the event
+                PanelCollapse?.Invoke(this, new EventArgs());
             }
             else
             {
                 _headerHeight = _headerHeightExpand;
-                this.Height = _expandHeight;
+                Height = _expandHeight;
                 Margin = new Padding(16, 16, 16, 16);
 
                 // Is the event registered?
-                if (PanelExpand != null)
-                    // Raise the event
-                    this.PanelExpand(this, new EventArgs());
+                // Raise the event
+                PanelExpand?.Invoke(this, new EventArgs());
             }
 
             Refresh();
@@ -609,9 +641,9 @@ namespace MaterialSkin.Controls
         {
             if (!_collapse && _showValidationButtons)
             {
-                int _buttonWidth = ((TextRenderer.MeasureText(ValidationButtonText, SkinManager.getFontByType(MaterialSkinManager.fontType.Button))).Width + 32);
-                _savebuttonBounds = new Rectangle((Width) - _buttonPadding - _buttonWidth, Height - _expansionPanelDefaultPadding - _footerButtonHeight, _buttonWidth, _footerButtonHeight);
-                _buttonWidth = ((TextRenderer.MeasureText(CancelButtonText, SkinManager.getFontByType(MaterialSkinManager.fontType.Button))).Width + 32);
+                int _buttonWidth = TextRenderer.MeasureText(ValidationButtonText, SkinManager.GetFontByType(MaterialSkinManager.FontType.Button)).Width + 32;
+                _savebuttonBounds = new Rectangle(Width - _buttonPadding - _buttonWidth, Height - _expansionPanelDefaultPadding - _footerButtonHeight, _buttonWidth, _footerButtonHeight);
+                _buttonWidth = TextRenderer.MeasureText(CancelButtonText, SkinManager.GetFontByType(MaterialSkinManager.FontType.Button)).Width + 32;
                 _cancelbuttonBounds = new Rectangle(_savebuttonBounds.Left - _buttonPadding - _buttonWidth, Height - _expansionPanelDefaultPadding - _footerButtonHeight, _buttonWidth, _footerButtonHeight);
 
                 if (_validationButton != null)
@@ -627,7 +659,7 @@ namespace MaterialSkin.Controls
                 if (_cancelButton != null)
                 {
                     _cancelButton.Width = _cancelbuttonBounds.Width;
-                    _cancelButton.Left = _validationButton.Left - _buttonPadding - _cancelbuttonBounds.Width;  //Button minimum width management
+                    _cancelButton.Left = (_validationButton?.Left ?? _cancelButton.Left) - _buttonPadding - _cancelbuttonBounds.Width;  //Button minimum width management
                     _cancelButton.Top = _cancelbuttonBounds.Top;
                     _cancelButton.Height = _cancelbuttonBounds.Height;
                     _cancelButton.Text = _cancelButtonText;

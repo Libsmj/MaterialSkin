@@ -9,15 +9,17 @@
     {
         //Properties for managing the material design properties
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Depth { get; set; }
 
         [Browsable(false)]
         public MaterialSkinManager SkinManager => MaterialSkinManager.Instance;
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MouseState MouseState { get; set; }
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         private static extern IntPtr SendMessage(IntPtr hWnd, int msg, int wParam, string lParam);
 
         private const int EM_SETCUEBANNER = 0x1501;
@@ -79,7 +81,7 @@
             });
         }
 
-        private void LeaveOnEnterKey_KeyDown(object sender, KeyEventArgs e)
+        private void LeaveOnEnterKey_KeyDown(object? sender, KeyEventArgs e)
         {
             if (e.KeyData == Keys.Enter && e.Control == false)
             {
@@ -92,10 +94,10 @@
         public MaterialMultiLineTextBox()
         {
             base.OnCreateControl();
-            this.Multiline = true;
+            Multiline = true;
 
             BorderStyle = BorderStyle.None;
-            Font = SkinManager.getFontByType(MaterialSkinManager.fontType.Body1);
+            Font = SkinManager.GetFontByType(MaterialSkinManager.FontType.Body1);
             BackColor = SkinManager.BackgroundColor;
             ForeColor = SkinManager.TextHighEmphasisColor;
             BackColorChanged += (sender, args) => BackColor = SkinManager.BackgroundColor;

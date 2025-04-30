@@ -1,8 +1,6 @@
 using MaterialSkin;
 using MaterialSkin.Controls;
-using System;
 using System.Text;
-using System.Windows.Forms;
 
 namespace MaterialSkinExample
 {
@@ -27,7 +25,7 @@ namespace MaterialSkinExample
             materialSkinManager.ColorScheme = new ColorScheme(Primary.Indigo500, Primary.Indigo700, Primary.Indigo100, Accent.Pink200, TextShade.WHITE);
 
             // Add dummy data to the listview
-            seedListView();
+            SeedListView();
             materialCheckedListBox1.Items.Add("Item1", false);
             materialCheckedListBox1.Items.Add("Item2", true);
             materialCheckedListBox1.Items.Add("Item3", true);
@@ -38,24 +36,30 @@ namespace MaterialSkinExample
 
             materialComboBox6.SelectedIndex = 0;
 
-            materialListBoxFormStyle.Clear();
-            foreach (var FormStyleItem in Enum.GetNames(typeof(MaterialForm.FormStyles)))
+            MaterialListBoxFormStyle.Clear();
+            foreach (var FormStyleItem in Enum.GetNames<FormStyles>())
             {
-                materialListBoxFormStyle.AddItem(FormStyleItem);
-                if (FormStyleItem == this.FormStyle.ToString()) materialListBoxFormStyle.SelectedIndex = materialListBoxFormStyle.Items.Count-1;
+                MaterialListBoxFormStyle.AddItem(FormStyleItem);
+                if (FormStyleItem == FormStyle.ToString())
+                {
+                    MaterialListBoxFormStyle.SelectedIndex = MaterialListBoxFormStyle.Items.Count - 1;
+                }
             }
 
-            materialListBoxFormStyle.SelectedIndexChanged += (sender, args) =>
+            MaterialListBoxFormStyle.SelectedIndexChanged += (sender, args) =>
             {
-                MaterialForm.FormStyles SelectedStyle = (MaterialForm.FormStyles)Enum.Parse(typeof(MaterialForm.FormStyles), args.Text);
-                if (this.FormStyle!= SelectedStyle) this.FormStyle = SelectedStyle;
+                MaterialForm.FormStyles SelectedStyle = Enum.Parse<FormStyles>(args.Text);
+                if (FormStyle != SelectedStyle)
+                {
+                    FormStyle = SelectedStyle;
+                }
             };
 
             materialMaskedTextBox1.ValidatingType = typeof(System.Int16);
 
         }
 
-        private void seedListView()
+        private void SeedListView()
         {
             //Define
             var data = new[]
@@ -75,23 +79,26 @@ namespace MaterialSkinExample
             }
         }
 
-        private void materialButton1_Click(object sender, EventArgs e)
+        private void MaterialButton7_Click(object sender, EventArgs e)
         {
             materialSkinManager.Theme = materialSkinManager.Theme == MaterialSkinManager.Themes.DARK ? MaterialSkinManager.Themes.LIGHT : MaterialSkinManager.Themes.DARK;
-            updateColor();
+            UpdateColor();
         }
 
         private int colorSchemeIndex;
 
-        private void MaterialButton1_Click(object sender, EventArgs e)
+        private void MaterialButton4_Click(object sender, EventArgs e)
         {
             colorSchemeIndex++;
             if (colorSchemeIndex > 2)
+            {
                 colorSchemeIndex = 0;
-            updateColor();
+            }
+
+            UpdateColor();
         }
 
-        private void updateColor()
+        private void UpdateColor()
         {
             //These are just example color schemes
             switch (colorSchemeIndex)
@@ -131,41 +138,38 @@ namespace MaterialSkinExample
             materialProgressBar1.Value = Math.Min(materialProgressBar1.Value + 10, 100);
         }
 
-        private void materialFlatButton4_Click(object sender, EventArgs e)
+        private void MaterialFlatButton2_Click(object sender, EventArgs e)
         {
             materialProgressBar1.Value = Math.Max(materialProgressBar1.Value - 10, 0);
         }
 
-        private void materialSwitch4_CheckedChanged(object sender, EventArgs e)
+        private void MaterialSwitch4_CheckedChanged(object sender, EventArgs e)
         {
-            DrawerUseColors = materialSwitch4.Checked;
+            DrawerUseColors = MaterialSwitch_Home1.Checked;
         }
 
         private void MaterialSwitch5_CheckedChanged(object sender, EventArgs e)
         {
-            DrawerHighlightWithAccent = materialSwitch5.Checked;
+            DrawerHighlightWithAccent = MaterialSwitch_Home2.Checked;
         }
 
         private void MaterialSwitch6_CheckedChanged(object sender, EventArgs e)
         {
-            DrawerBackgroundWithAccent = materialSwitch6.Checked;
+            DrawerBackgroundWithAccent = MaterialSwitch_Home3.Checked;
         }
 
-        private void materialSwitch8_CheckedChanged(object sender, EventArgs e)
+        private void MaterialSwitch8_CheckedChanged(object sender, EventArgs e)
         {
-            DrawerShowIconsWhenHidden = materialSwitch8.Checked;
+            DrawerShowIconsWhenHidden = MaterialSwitch_Home4.Checked;
         }
 
         private void MaterialButton3_Click(object sender, EventArgs e)
         {
             var builder = new StringBuilder("Batch operation report:\n\n");
             var random = new Random();
-            var result = 0;
-
             for (int i = 0; i < 200; i++)
             {
-                result = random.Next(1000);
-
+                int result = random.Next(1000);
                 if (result < 950)
                 {
                     builder.AppendFormat(" - Task {0}: Operation completed sucessfully.\n", i);
@@ -176,93 +180,105 @@ namespace MaterialSkinExample
                 }
             }
 
-            var batchOperationResults = builder.ToString();
-            batchOperationResults = "Simple text";
-            var mresult = MaterialMessageBox.Show(batchOperationResults, "Batch Operation", MessageBoxButtons.YesNoCancel, FlexibleMaterialForm.ButtonsPosition.Center);
+            _ = builder.ToString();
+            string? batchOperationResults = "Simple text";
+            _ = MaterialMessageBox.Show(batchOperationResults, "Batch Operation", MessageBoxButtons.YesNoCancel, FlexibleMaterialForm.ButtonsPosition.Center);
             materialComboBox1.Items.Add("this is a very long string");
         }
 
-        private void materialSwitch9_CheckedChanged(object sender, EventArgs e)
+        private void MaterialSwitch9_CheckedChanged(object sender, EventArgs e)
         {
-            DrawerAutoShow = materialSwitch9.Checked;
+            DrawerAutoShow = MaterialSwitch_Home5.Checked;
         }
 
-        private void materialTextBox2_LeadingIconClick(object sender, EventArgs e)
+        private void MaterialTextBox2_LeadingIconClick(object sender, EventArgs e)
         {
             MaterialSnackBar SnackBarMessage = new MaterialSnackBar("Leading Icon Click");
             SnackBarMessage.Show(this);
 
         }
 
-        private void materialButton6_Click(object sender, EventArgs e)
+        private void MaterialButton6_Click(object sender, EventArgs e)
         {
             MaterialSnackBar SnackBarMessage = new MaterialSnackBar("SnackBar started succesfully", "OK", true);
             SnackBarMessage.Show(this);
         }
 
-        private void materialSwitch10_CheckedChanged(object sender, EventArgs e)
+        private void MaterialSwitch10_CheckedChanged(object sender, EventArgs e)
         {
             materialTextBox21.UseAccent = materialSwitch10.Checked;
         }
 
-        private void materialSwitch11_CheckedChanged(object sender, EventArgs e)
+        private void MaterialSwitch11_CheckedChanged(object sender, EventArgs e)
         {
             materialTextBox21.UseTallSize = materialSwitch11.Checked;
         }
 
-        private void materialSwitch12_CheckedChanged(object sender, EventArgs e)
+        private void MaterialSwitch12_CheckedChanged(object sender, EventArgs e)
         {
             if (materialSwitch12.Checked)
+            {
                 materialTextBox21.Hint = "Hint text";
+            }
             else
+            {
                 materialTextBox21.Hint = "";
+            }
         }
 
-        private void materialComboBox7_SelectionChangeCommitted(object sender, EventArgs e)
+        private void MaterialComboBox7_SelectionChangeCommitted(object sender, EventArgs e)
         {
             if (materialComboBox7.SelectedIndex == 1)
             {
-                    materialTextBox21.PrefixSuffix = MaterialTextBox2.PrefixSuffixTypes.Prefix;
+                materialTextBox21.PrefixSuffix = MaterialTextBox2.PrefixSuffixTypes.Prefix;
             }
             else if (materialComboBox7.SelectedIndex == 2)
             {
                 materialTextBox21.PrefixSuffix = MaterialTextBox2.PrefixSuffixTypes.Suffix;
             }
-            else 
+            else
             {
                 materialTextBox21.PrefixSuffix = MaterialTextBox2.PrefixSuffixTypes.None;
             }
         }
 
-        private void materialSwitch13_CheckedChanged(object sender, EventArgs e)
+        private void MaterialSwitch13_CheckedChanged(object sender, EventArgs e)
         {
             materialTextBox21.UseSystemPasswordChar = materialSwitch13.Checked;
 
         }
 
-        private void materialSwitch14_CheckedChanged(object sender, EventArgs e)
+        private void MaterialSwitch14_CheckedChanged(object sender, EventArgs e)
         {
             if (materialSwitch14.Checked)
-                materialTextBox21.LeadingIcon = global::MaterialSkinExample.Properties.Resources.baseline_fingerprint_black_24dp;
+            {
+                materialTextBox21.LeadingIcon = Properties.Resources.baseline_fingerprint_black_24dp;
+            }
             else
+            {
                 materialTextBox21.LeadingIcon = null;
+            }
         }
 
-        private void materialSwitch15_CheckedChanged(object sender, EventArgs e)
+        private void MaterialSwitch15_CheckedChanged(object sender, EventArgs e)
         {
             if (materialSwitch15.Checked)
-                materialTextBox21.TrailingIcon = global::MaterialSkinExample.Properties.Resources.baseline_build_black_24dp;
+            {
+                materialTextBox21.TrailingIcon = Properties.Resources.baseline_build_black_24dp;
+            }
             else
+            {
                 materialTextBox21.TrailingIcon = null;
+            }
         }
 
-        private void materialTextBox21_LeadingIconClick(object sender, EventArgs e)
+        private void MaterialTextBox21_LeadingIconClick(object sender, EventArgs e)
         {
             MaterialSnackBar SnackBarMessage = new MaterialSnackBar("Leading Icon Click");
             SnackBarMessage.Show(this);
         }
 
-        private void materialTextBox21_TrailingIconClick(object sender, EventArgs e)
+        private void MaterialTextBox21_TrailingIconClick(object sender, EventArgs e)
         {
             MaterialSnackBar SnackBarMessage = new MaterialSnackBar("Trailing Icon Click");
             SnackBarMessage.Show(this);
@@ -272,23 +288,25 @@ namespace MaterialSkinExample
         {
             materialCheckbox1.ReadOnly = msReadOnly.Checked;
         }
-        
-        private void materialButton25_Click(object sender, EventArgs e)
+
+        private void MaterialButton25_Click(object sender, EventArgs e)
         {
-            MaterialDialog materialDialog = new MaterialDialog(this,"Dialog Title", "Dialogs inform users about a task and can contain critical information, require decisions, or involve multiple tasks.", "OK", true, "Cancel");
+            MaterialDialog materialDialog = new MaterialDialog(this, "Dialog Title", "Dialogs inform users about a task and can contain critical information, require decisions, or involve multiple tasks.", "OK", true, "Cancel");
             DialogResult result = materialDialog.ShowDialog(this);
 
-            MaterialSnackBar SnackBarMessage = new MaterialSnackBar(result.ToString(),750);
+            MaterialSnackBar SnackBarMessage = new MaterialSnackBar(result.ToString(), 750);
             SnackBarMessage.Show(this);
 
         }
-        
-        private void materialSwitch16_CheckedChanged(object sender, EventArgs e)
+
+        private void MaterialSwitch16_CheckedChanged(object sender, EventArgs e)
         {
             materialTextBox21.ShowAssistiveText = materialSwitch16.Checked;
         }
 
-
-
+        private void MaterialButton26_Click(object sender, EventArgs e)
+        {
+            TabPage1.DrawIconSilhouette = !TabPage1.DrawIconSilhouette;
+        }
     }
 }

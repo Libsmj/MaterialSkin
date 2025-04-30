@@ -1,7 +1,4 @@
-﻿using System;
-using System.Drawing;
-
-namespace MaterialSkin
+﻿namespace MaterialSkin
 {
     public static class ColorHelper
     {
@@ -13,8 +10,8 @@ namespace MaterialSkin
         /// <returns>The new tinted color.</returns>
         public static Color Lighten(this Color color, float percent)
         {
-            var lighting = color.GetBrightness();
-            lighting = lighting + lighting * percent;
+            float lighting = color.GetBrightness();
+            lighting += lighting * percent;
             if (lighting > 1.0)
             {
                 lighting = 1;
@@ -23,7 +20,7 @@ namespace MaterialSkin
             {
                 lighting = 0.1f;
             }
-            var tintedColor = ColorHelper.FromHsl(color.A, color.GetHue(), color.GetSaturation(), lighting);
+            Color tintedColor = FromHsl(color.A, color.GetHue(), color.GetSaturation(), lighting);
 
             return tintedColor;
         }
@@ -36,8 +33,8 @@ namespace MaterialSkin
         /// <returns>The new tinted color.</returns>
         public static Color Darken(this Color color, float percent)
         {
-            var lighting = color.GetBrightness();
-            lighting = lighting - lighting * percent;
+            float lighting = color.GetBrightness();
+            lighting -= lighting * percent;
             if (lighting > 1.0)
             {
                 lighting = 1;
@@ -46,7 +43,7 @@ namespace MaterialSkin
             {
                 lighting = 0;
             }
-            var tintedColor = ColorHelper.FromHsl(color.A, color.GetHue(), color.GetSaturation(), lighting);
+            Color tintedColor = FromHsl(color.A, color.GetHue(), color.GetSaturation(), lighting);
 
             return tintedColor;
         }
@@ -63,19 +60,19 @@ namespace MaterialSkin
         {
             if (0 > alpha || 255 < alpha)
             {
-                throw new ArgumentOutOfRangeException("alpha");
+                throw new ArgumentOutOfRangeException(nameof(alpha));
             }
             if (0f > hue || 360f < hue)
             {
-                throw new ArgumentOutOfRangeException("hue");
+                throw new ArgumentOutOfRangeException(nameof(hue));
             }
             if (0f > saturation || 1f < saturation)
             {
-                throw new ArgumentOutOfRangeException("saturation");
+                throw new ArgumentOutOfRangeException(nameof(saturation));
             }
             if (0f > lighting || 1f < lighting)
             {
-                throw new ArgumentOutOfRangeException("lighting");
+                throw new ArgumentOutOfRangeException(nameof(lighting));
             }
 
             if (0 == saturation)
@@ -103,7 +100,7 @@ namespace MaterialSkin
                 hue -= 360f;
             }
             hue /= 60f;
-            hue -= 2f * (float)Math.Floor(((iSextant + 1f) % 6f) / 2f);
+            hue -= 2f * (float)Math.Floor((iSextant + 1f) % 6f / 2f);
             if (0 == iSextant % 2)
             {
                 fMid = hue * (fMax - fMin) + fMin;
@@ -148,10 +145,12 @@ namespace MaterialSkin
         public static Color RemoveAlpha(Color foreground, Color background)
         {
             if (foreground.A == 255)
+            {
                 return foreground;
+            }
 
-            var alpha = foreground.A / 255.0;
-            var diff = 1.0 - alpha;
+            double alpha = foreground.A / 255.0;
+            double diff = 1.0 - alpha;
             return Color.FromArgb(255,
                 (byte)(foreground.R * alpha + background.R * diff),
                 (byte)(foreground.G * alpha + background.G * diff),

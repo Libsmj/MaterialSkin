@@ -1,8 +1,10 @@
 namespace MaterialSkin.Controls
 {
+    using MaterialSkin;
     using MaterialSkin.Animations;
     using System;
     using System.ComponentModel;
+    using System.Diagnostics.CodeAnalysis;
     using System.Drawing;
     using System.Drawing.Text;
     using System.Linq;
@@ -13,19 +15,22 @@ namespace MaterialSkin.Controls
     using System.Runtime.Remoting.Channels;
     #endif
 
-    public class MaterialForm : Form, IMaterialControl
+    public partial class MaterialForm : Form, IMaterialControl
     {
         #region Public Properties
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Depth { get; set; }
 
         [Browsable(false)]
         public MaterialSkinManager SkinManager => MaterialSkinManager.Instance;
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MouseState MouseState { get; set; }
 
         [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool Sizable { get; set; }
 
         [Category("Material Skin"), Browsable(true), DisplayName("Form Style"), DefaultValue(FormStyles.ActionBar_40)]
@@ -34,7 +39,10 @@ namespace MaterialSkin.Controls
             get => _formStyle;
             set
             {
-                if (_formStyle == value) return;
+                if (_formStyle == value)
+                {
+                    return;
+                }
 
                 _formStyle = value;
                 RecalculateFormBoundaries();
@@ -42,16 +50,23 @@ namespace MaterialSkin.Controls
         }
 
         [Category("Drawer")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool DrawerShowIconsWhenHidden
         {
             get => _drawerShowIconsWhenHidden;
             set
             {
-                if (_drawerShowIconsWhenHidden == value) return;
+                if (_drawerShowIconsWhenHidden == value)
+                {
+                    return;
+                }
 
                 _drawerShowIconsWhenHidden = value;
 
-                if (drawerControl == null) return;
+                if (drawerControl == null)
+                {
+                    return;
+                }
 
                 drawerControl.ShowIconsWhenHidden = _drawerShowIconsWhenHidden;
                 drawerControl.Refresh();
@@ -59,9 +74,11 @@ namespace MaterialSkin.Controls
         }
 
         [Category("Drawer")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int DrawerWidth { get; set; }
 
         [Category("Drawer")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool DrawerAutoHide
         {
             get => _drawerAutoHide;
@@ -69,6 +86,7 @@ namespace MaterialSkin.Controls
         }
 
         [Category("Drawer")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool DrawerAutoShow
         {
             get => _drawerAutoShow;
@@ -76,36 +94,52 @@ namespace MaterialSkin.Controls
         }
 
         [Category("Drawer")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int DrawerIndicatorWidth { get; set; }
 
         [Category("Drawer")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool DrawerIsOpen
         {
             get => _drawerIsOpen;
             set
             {
-                if (_drawerIsOpen == value) return;
+                if (_drawerIsOpen == value)
+                {
+                    return;
+                }
 
                 _drawerIsOpen = value;
 
                 if (value)
+                {
                     drawerControl?.Show();
+                }
                 else
+                {
                     drawerControl?.Hide();
+                }
             }
         }
 
         [Category("Drawer")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool DrawerUseColors
         {
             get => _drawerUseColors;
             set
             {
-                if (_drawerUseColors == value) return;
+                if (_drawerUseColors == value)
+                {
+                    return;
+                }
 
                 _drawerUseColors = value;
 
-                if (drawerControl == null) return;
+                if (drawerControl == null)
+                {
+                    return;
+                }
 
                 drawerControl.UseColors = value;
                 drawerControl.Refresh();
@@ -113,16 +147,23 @@ namespace MaterialSkin.Controls
         }
 
         [Category("Drawer")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool DrawerHighlightWithAccent
         {
             get => _drawerHighlightWithAccent;
             set
             {
-                if (_drawerHighlightWithAccent == value) return;
+                if (_drawerHighlightWithAccent == value)
+                {
+                    return;
+                }
 
                 _drawerHighlightWithAccent = value;
 
-                if (drawerControl == null) return;
+                if (drawerControl == null)
+                {
+                    return;
+                }
 
                 drawerControl.HighlightWithAccent = value;
                 drawerControl.Refresh();
@@ -130,16 +171,23 @@ namespace MaterialSkin.Controls
         }
 
         [Category("Drawer")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool DrawerBackgroundWithAccent
         {
             get => _backgroundWithAccent;
             set
             {
-                if (_backgroundWithAccent == value) return;
+                if (_backgroundWithAccent == value)
+                {
+                    return;
+                }
 
                 _backgroundWithAccent = value;
 
-                if (drawerControl == null) return;
+                if (drawerControl == null)
+                {
+                    return;
+                }
 
                 drawerControl.BackgroundWithAccent = value;
                 drawerControl.Refresh();
@@ -147,20 +195,25 @@ namespace MaterialSkin.Controls
         }
 
         [Category("Drawer")]
-        public MaterialTabControl DrawerTabControl { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public MaterialTabControl? DrawerTabControl { get; set; }
 
+        [AllowNull]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public override string Text
         {
             get { return base.Text; }
             set { base.Text = value; Invalidate(); }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public new FormWindowState WindowState
         {
             get { return base.WindowState; }
             set { base.WindowState = value; }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public new FormBorderStyle FormBorderStyle
         {
             get { return base.FormBorderStyle; }
@@ -369,12 +422,12 @@ namespace MaterialSkin.Controls
         private ResizeDirection _resizeDir;
         private ButtonState _buttonState = ButtonState.None;
         private FormStyles _formStyle;
-        private Rectangle _minButtonBounds => new Rectangle(ClientSize.Width - 3 * STATUS_BAR_BUTTON_WIDTH, ClientRectangle.Y, STATUS_BAR_BUTTON_WIDTH, STATUS_BAR_HEIGHT);
-        private Rectangle _maxButtonBounds => new Rectangle(ClientSize.Width - 2 * STATUS_BAR_BUTTON_WIDTH, ClientRectangle.Y, STATUS_BAR_BUTTON_WIDTH, STATUS_BAR_HEIGHT);
-        private Rectangle _xButtonBounds => new Rectangle(ClientSize.Width - STATUS_BAR_BUTTON_WIDTH, ClientRectangle.Y, STATUS_BAR_BUTTON_WIDTH, STATUS_BAR_HEIGHT);
-        private Rectangle _actionBarBounds => new Rectangle(ClientRectangle.X, ClientRectangle.Y + STATUS_BAR_HEIGHT, ClientSize.Width, ACTION_BAR_HEIGHT);
-        private Rectangle _drawerButtonBounds => new Rectangle(ClientRectangle.X + (SkinManager.FORM_PADDING / 2) + 3, STATUS_BAR_HEIGHT + (ACTION_BAR_HEIGHT / 2) - (ACTION_BAR_HEIGHT_DEFAULT / 2), ACTION_BAR_HEIGHT_DEFAULT, ACTION_BAR_HEIGHT_DEFAULT);
-        private Rectangle _statusBarBounds => new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientSize.Width, STATUS_BAR_HEIGHT);
+        private Rectangle MinButtonBounds => new Rectangle(ClientSize.Width - 3 * STATUS_BAR_BUTTON_WIDTH, ClientRectangle.Y, STATUS_BAR_BUTTON_WIDTH, STATUS_BAR_HEIGHT);
+        private Rectangle MaxButtonBounds => new Rectangle(ClientSize.Width - 2 * STATUS_BAR_BUTTON_WIDTH, ClientRectangle.Y, STATUS_BAR_BUTTON_WIDTH, STATUS_BAR_HEIGHT);
+        private Rectangle XButtonBounds => new Rectangle(ClientSize.Width - STATUS_BAR_BUTTON_WIDTH, ClientRectangle.Y, STATUS_BAR_BUTTON_WIDTH, STATUS_BAR_HEIGHT);
+        private Rectangle ActionBarBounds => new Rectangle(ClientRectangle.X, ClientRectangle.Y + STATUS_BAR_HEIGHT, ClientSize.Width, ACTION_BAR_HEIGHT);
+        private Rectangle DrawerButtonBounds => new Rectangle(ClientRectangle.X + (SkinManager.FORM_PADDING / 2) + 3, STATUS_BAR_HEIGHT + (ACTION_BAR_HEIGHT / 2) - (ACTION_BAR_HEIGHT_DEFAULT / 2), ACTION_BAR_HEIGHT_DEFAULT, ACTION_BAR_HEIGHT_DEFAULT);
+        private Rectangle StatusBarBounds => new Rectangle(ClientRectangle.X, ClientRectangle.Y, ClientSize.Width, STATUS_BAR_HEIGHT);
         private Rectangle _drawerIconRect;
 
         private bool Maximized
@@ -382,19 +435,26 @@ namespace MaterialSkin.Controls
             get => WindowState == FormWindowState.Maximized;
             set
             {
-                if (!MaximizeBox || !ControlBox) return;
+                if (!MaximizeBox || !ControlBox)
+                {
+                    return;
+                }
 
                 if (value)
+                {
                     WindowState = FormWindowState.Maximized;
+                }
                 else
+                {
                     WindowState = FormWindowState.Normal;
+                }
             }
         }
         private Point _animationSource;
         private Padding originalPadding;
 
-        private Form drawerOverlay = new Form();
-        private MaterialDrawerForm drawerForm = new MaterialDrawerForm();
+        private readonly Form drawerOverlay = new Form();
+        private readonly MaterialDrawerForm drawerForm = new MaterialDrawerForm();
 
         // Drawer overlay and speed improvements
         private bool _drawerShowIconsWhenHidden;
@@ -404,8 +464,8 @@ namespace MaterialSkin.Controls
         private bool _drawerUseColors;
         private bool _drawerHighlightWithAccent;
         private bool _backgroundWithAccent;
-        private MaterialDrawer drawerControl = new MaterialDrawer();
-        private AnimationManager _drawerShowHideAnimManager;
+        private readonly MaterialDrawer drawerControl = new MaterialDrawer();
+        private AnimationManager? _drawerShowHideAnimManager;
         private readonly AnimationManager _clickAnimManager;
 
         private int STATUS_BAR_HEIGHT = 24;
@@ -442,7 +502,10 @@ namespace MaterialSkin.Controls
             Shown += (sender, e) =>
             {
                 if (DesignMode || IsDisposed)
+                {
                     return;
+                }
+
                 AddDrawerOverlayForm();
             };
         }
@@ -451,7 +514,9 @@ namespace MaterialSkin.Controls
         protected void AddDrawerOverlayForm()
         {
             if (DrawerTabControl == null)
+            {
                 return;
+            }
 
             // Form opacity fade animation;
             _drawerShowHideAnimManager = new AnimationManager
@@ -465,8 +530,8 @@ namespace MaterialSkin.Controls
                 drawerOverlay.Opacity = (float)(_drawerShowHideAnimManager.GetProgress() * 0.55f);
             };
 
-            int H = ClientSize.Height - _statusBarBounds.Height - _actionBarBounds.Height;
-            int Y = PointToScreen(Point.Empty).Y + _statusBarBounds.Height + _actionBarBounds.Height;
+            int H = ClientSize.Height - StatusBarBounds.Height - ActionBarBounds.Height;
+            int Y = PointToScreen(Point.Empty).Y + StatusBarBounds.Height + ActionBarBounds.Height;
 
             // Overlay Form definitions
             drawerOverlay.BackColor = Color.Black;
@@ -504,7 +569,7 @@ namespace MaterialSkin.Controls
             drawerForm.Controls.Add(drawerControl);
             drawerControl.Location = new Point(0, 0);
             drawerControl.Size = new Size(DrawerWidth, H);
-            drawerControl.Anchor = (AnchorStyles.Top | AnchorStyles.Bottom);
+            drawerControl.Anchor = AnchorStyles.Top | AnchorStyles.Bottom;
             drawerControl.BaseTabControl = DrawerTabControl;
             drawerControl.ShowIconsWhenHidden = true;
 
@@ -536,14 +601,14 @@ namespace MaterialSkin.Controls
 
             Resize += (sender, e) =>
             {
-                H = ClientSize.Height - _statusBarBounds.Height - _actionBarBounds.Height;
+                H = ClientSize.Height - StatusBarBounds.Height - ActionBarBounds.Height;
                 drawerForm.Size = new Size(DrawerWidth, H);
                 drawerOverlay.Size = new Size(ClientSize.Width, H);
             };
 
             Move += (sender, e) =>
             {
-                Point pos = new Point(PointToScreen(Point.Empty).X, PointToScreen(Point.Empty).Y + _statusBarBounds.Height + _actionBarBounds.Height);
+                Point pos = new Point(PointToScreen(Point.Empty).X, PointToScreen(Point.Empty).Y + StatusBarBounds.Height + ActionBarBounds.Height);
                 drawerForm.Location = pos;
                 drawerOverlay.Location = pos;
             };
@@ -575,23 +640,36 @@ namespace MaterialSkin.Controls
                 if (Sizable && !Maximized)
                 {
                     if (drawerCursor == Cursors.SizeNESW)
+                    {
                         _resizeDir = ResizeDirection.BottomLeft;
+                    }
                     else if (drawerCursor == Cursors.SizeWE)
+                    {
                         _resizeDir = ResizeDirection.Left;
+                    }
                     else if (drawerCursor == Cursors.SizeNS)
+                    {
                         _resizeDir = ResizeDirection.Bottom;
+                    }
                     else
+                    {
                         _resizeDir = ResizeDirection.None;
+                    }
                 }
                 else
+                {
                     _resizeDir = ResizeDirection.None;
+                }
+
                 Cursor = drawerCursor;
             };
 
             // Form Padding corrections
 
-            if (Padding.Top < (_statusBarBounds.Height + _actionBarBounds.Height))
-                Padding = new Padding(Padding.Left, (_statusBarBounds.Height + _actionBarBounds.Height), Padding.Right, Padding.Bottom);
+            if (Padding.Top < (StatusBarBounds.Height + ActionBarBounds.Height))
+            {
+                Padding = new Padding(Padding.Left, StatusBarBounds.Height + ActionBarBounds.Height, Padding.Right, Padding.Bottom);
+            }
 
             originalPadding = Padding;
 
@@ -601,76 +679,103 @@ namespace MaterialSkin.Controls
             // Fix Closing the Drawer or Overlay form with Alt+F4 not exiting the app
             drawerOverlay.FormClosed += TerminateOnClose;
             drawerForm.FormClosed += TerminateOnClose;
-            drawerForm.Attach(drawerControl);
+            MaterialDrawerForm.Attach(drawerControl);
         }
 
-        private void TerminateOnClose(object sender, FormClosedEventArgs e)
+        private void TerminateOnClose(object? sender, FormClosedEventArgs e)
         {
             Application.Exit();
         }
 
-        private void FixFormPadding(object sender)
+        private void FixFormPadding(object? sender)
         {
             if (drawerControl.ShowIconsWhenHidden)
+            {
                 Padding = new Padding(Padding.Left < drawerControl.MinWidth ? drawerControl.MinWidth : Padding.Left, originalPadding.Top, originalPadding.Right, originalPadding.Bottom);
+            }
             else
+            {
                 Padding = new Padding(PADDING_MINIMUM, originalPadding.Top, originalPadding.Right, originalPadding.Bottom);
+            }
         }
 
         private void UpdateButtons(MouseButtons button, Point location, bool up = false)
         {
-            if (DesignMode) return;
+            if (DesignMode)
+            {
+                return;
+            }
 
-            var oldState = _buttonState;
+            ButtonState oldState = _buttonState;
             bool showMin = MinimizeBox && ControlBox;
             bool showMax = MaximizeBox && ControlBox;
 
             if (button == MouseButtons.Left && !up)
             {
-                if (showMin && !showMax && _maxButtonBounds.Contains(location))
+                if (showMin && !showMax && MaxButtonBounds.Contains(location))
+                {
                     _buttonState = ButtonState.MinDown;
-                else if (showMin && showMax && _minButtonBounds.Contains(location))
+                }
+                else if (showMin && showMax && MinButtonBounds.Contains(location))
+                {
                     _buttonState = ButtonState.MinDown;
-                else if (showMax && _maxButtonBounds.Contains(location))
+                }
+                else if (showMax && MaxButtonBounds.Contains(location))
+                {
                     _buttonState = ButtonState.MaxDown;
-                else if (ControlBox && _xButtonBounds.Contains(location))
+                }
+                else if (ControlBox && XButtonBounds.Contains(location))
+                {
                     _buttonState = ButtonState.XDown;
-                else if (_drawerButtonBounds.Contains(location))
+                }
+                else if (DrawerButtonBounds.Contains(location))
+                {
                     _buttonState = ButtonState.DrawerDown;
+                }
                 else
+                {
                     _buttonState = ButtonState.None;
+                }
             }
             else
             {
-                if (showMin && !showMax && _maxButtonBounds.Contains(location))
+                if (showMin && !showMax && MaxButtonBounds.Contains(location))
                 {
                     _buttonState = ButtonState.MinOver;
 
                     if (oldState == ButtonState.MinDown && up)
+                    {
                         WindowState = FormWindowState.Minimized;
+                    }
                 }
-                else if (showMin && showMax && _minButtonBounds.Contains(location))
+                else if (showMin && showMax && MinButtonBounds.Contains(location))
                 {
                     _buttonState = ButtonState.MinOver;
 
                     if (oldState == ButtonState.MinDown && up)
+                    {
                         WindowState = FormWindowState.Minimized;
+                    }
                 }
-                else if (showMax && _maxButtonBounds.Contains(location))
+                else if (showMax && MaxButtonBounds.Contains(location))
                 {
                     _buttonState = ButtonState.MaxOver;
 
                     if (oldState == ButtonState.MaxDown && up)
+                    {
                         Maximized = !Maximized;
+                    }
                 }
-                else if (ControlBox && _xButtonBounds.Contains(location))
+                else if (ControlBox && XButtonBounds.Contains(location))
                 {
                     _buttonState = ButtonState.XOver;
 
                     if (oldState == ButtonState.XDown && up)
+                    {
                         Close();
+                    }
                 }
-                else if (_drawerButtonBounds.Contains(location))
+                else if (DrawerButtonBounds.Contains(location))
                 {
                     _buttonState = ButtonState.DrawerOver;
                 }
@@ -681,14 +786,19 @@ namespace MaterialSkin.Controls
             }
 
             if (oldState != _buttonState)
+            {
                 Invalidate();
+            }
         }
 
         private void ResizeForm(ResizeDirection direction)
         {
             if (DesignMode)
+            {
                 return;
-            var dir = -1;
+            }
+
+            int dir = -1;
             switch (direction)
             {
                 case ResizeDirection.BottomLeft:
@@ -729,7 +839,7 @@ namespace MaterialSkin.Controls
             ReleaseCapture();
             if (dir != -1)
             {
-                SendMessage(Handle, (int)WM.NonClientLeftButtonDown, dir, 0);
+                _ = SendMessage(Handle, (int)WM.NonClientLeftButtonDown, dir, 0);
             }
         }
 
@@ -772,8 +882,8 @@ namespace MaterialSkin.Controls
 
             if (DrawerTabControl != null)
             {
-                var height = ClientSize.Height - (STATUS_BAR_HEIGHT + ACTION_BAR_HEIGHT);
-                var location = Point.Add(Location, new Size(0, STATUS_BAR_HEIGHT + ACTION_BAR_HEIGHT));
+                int height = ClientSize.Height - (STATUS_BAR_HEIGHT + ACTION_BAR_HEIGHT);
+                Point location = Point.Add(Location, new Size(0, STATUS_BAR_HEIGHT + ACTION_BAR_HEIGHT));
                 drawerOverlay.Size = new Size(ClientSize.Width, height);
                 drawerOverlay.Location = location;
                 drawerForm.Size = new Size(DrawerWidth, height);
@@ -789,7 +899,7 @@ namespace MaterialSkin.Controls
         {
             get
             {
-                var par = base.CreateParams;
+                CreateParams par = base.CreateParams;
                 par.Style |= (int)WS.MinimizeBox | (int)WS.SysMenu;
                 return par;
             }
@@ -801,15 +911,18 @@ namespace MaterialSkin.Controls
 
             // Sets the Window Style for having a Size Frame after the form is created
             // This prevents unexpected sizing while still allowing for Aero Snapping
-            var flags = GetWindowLongPtr(Handle, -16).ToInt64();
-            SetWindowLongPtr(Handle, -16, (IntPtr)(flags | (int)WS.SizeFrame));
+            long flags = GetWindowLongPtr(Handle, -16).ToInt64();
+            SetWindowLongPtr(Handle, -16, (nint)(flags | (int)WS.SizeFrame));
         }
 
         protected override void WndProc(ref Message m)
         {
-            var message = (WM)m.Msg;
+            WM message = (WM)m.Msg;
             // Prevent the base class from receiving the message
-            if (message == WM.NonClientCalcSize) return;
+            if (message == WM.NonClientCalcSize)
+            {
+                return;
+            }
 
             // https://docs.microsoft.com/en-us/windows/win32/winmsg/wm-ncactivate?redirectedfrom=MSDN#parameters
             // "If this parameter is set to -1, DefWindowProc does not repaint the nonclient area to reflect the state change."
@@ -821,11 +934,13 @@ namespace MaterialSkin.Controls
 
             base.WndProc(ref m);
             if (DesignMode || IsDisposed)
+            {
                 return;
+            }
 
-            var cursorPos = PointToClient(Cursor.Position);
-            var isOverCaption = (_statusBarBounds.Contains(cursorPos) || _actionBarBounds.Contains(cursorPos)) &&
-                !(_minButtonBounds.Contains(cursorPos) || _maxButtonBounds.Contains(cursorPos) || _xButtonBounds.Contains(cursorPos));
+            Point cursorPos = PointToClient(Cursor.Position);
+            bool isOverCaption = (StatusBarBounds.Contains(cursorPos) || ActionBarBounds.Contains(cursorPos)) &&
+                !(MinButtonBounds.Contains(cursorPos) || MaxButtonBounds.Contains(cursorPos) || XButtonBounds.Contains(cursorPos));
 
             // Drawer
             if (DrawerTabControl != null && (message == WM.LeftButtonDown || message == WM.LeftButtonDoubleClick) && _drawerIconRect.Contains(cursorPos))
@@ -844,23 +959,23 @@ namespace MaterialSkin.Controls
             else if (message == WM.LeftButtonDown && isOverCaption)
             {
                 ReleaseCapture();
-                SendMessage(Handle, (int)WM.NonClientLeftButtonDown, (int)HT.Caption, 0);
+                _ = SendMessage(Handle, (int)WM.NonClientLeftButtonDown, (int)HT.Caption, 0);
             }
             // Default context menu
             else if (message == WM.RightButtonDown)
             {
-                if (_statusBarBounds.Contains(cursorPos) && !_minButtonBounds.Contains(cursorPos) &&
-                    !_maxButtonBounds.Contains(cursorPos) && !_xButtonBounds.Contains(cursorPos))
+                if (StatusBarBounds.Contains(cursorPos) && !MinButtonBounds.Contains(cursorPos) &&
+                    !MaxButtonBounds.Contains(cursorPos) && !XButtonBounds.Contains(cursorPos))
                 {
                     // Temporary disable user defined ContextMenuStrip
-                    var user_cms = base.ContextMenuStrip;
+                    ContextMenuStrip? user_cms = base.ContextMenuStrip;
                     base.ContextMenuStrip = null;
 
                     // Show default system menu when right clicking titlebar
-                    var id = TrackPopupMenuEx(GetSystemMenu(Handle, false), (int)TPM.LeftAlign | (int)TPM.ReturnCommand, Cursor.Position.X, Cursor.Position.Y, Handle, IntPtr.Zero);
+                    int id = TrackPopupMenuEx(GetSystemMenu(Handle, false), (int)TPM.LeftAlign | (int)TPM.ReturnCommand, Cursor.Position.X, Cursor.Position.Y, Handle, IntPtr.Zero);
 
                     // Pass the command as a WM_SYSCOMMAND message
-                    SendMessage(Handle, (int)WM.SystemCommand, id, 0);
+                    _ = SendMessage(Handle, (int)WM.SystemCommand, id, 0);
                     
                     // restore user defined ContextMenuStrip
                     base.ContextMenuStrip = user_cms;
@@ -878,11 +993,17 @@ namespace MaterialSkin.Controls
         protected override void OnMouseDown(MouseEventArgs e)
         {
             if (DesignMode)
+            {
                 return;
+            }
+
             UpdateButtons(e.Button, e.Location);
 
             if (e.Button == MouseButtons.Left && !Maximized && _resizeCursors.Contains(Cursor))
+            {
                 ResizeForm(_resizeDir);
+            }
+
             base.OnMouseDown(e);
         }
 
@@ -896,7 +1017,10 @@ namespace MaterialSkin.Controls
         {
             base.OnMouseLeave(e);
             if (DesignMode)
+            {
                 return;
+            }
+
             _buttonState = ButtonState.None;
             _resizeDir = ResizeDirection.None;
             //Only reset the cursor when needed
@@ -912,16 +1036,22 @@ namespace MaterialSkin.Controls
         {
             base.OnMouseMove(e);
 
-            if (DesignMode) return;
+            if (DesignMode)
+            {
+                return;
+            }
 
-            var coords = e.Location;
+            Point coords = e.Location;
 
             UpdateButtons(e.Button, coords);
 
-            if (!Sizable) return;
+            if (!Sizable)
+            {
+                return;
+            }
 
             //True if the mouse is hovering over a child control
-            var isChildUnderMouse = GetChildAtPoint(coords) != null;
+            bool isChildUnderMouse = GetChildAtPoint(coords) != null;
 
             if (!isChildUnderMouse && !Maximized && coords.Y < BORDER_WIDTH && coords.X > BORDER_WIDTH && coords.X < ClientSize.Width - BORDER_WIDTH)
             {
@@ -969,14 +1099,19 @@ namespace MaterialSkin.Controls
 
                 //Only reset the cursor when needed, this prevents it from flickering when a child control changes the cursor to its own needs
                 if (_resizeCursors.Contains(Cursor))
+                {
                     Cursor = Cursors.Default;
+                }
             }
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
             if (DesignMode)
+            {
                 return;
+            }
+
             UpdateButtons(e.Button, e.Location, true);
 
             base.OnMouseUp(e);
@@ -985,18 +1120,18 @@ namespace MaterialSkin.Controls
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            var hoverBrush = SkinManager.BackgroundHoverBrush;
-            var downBrush = SkinManager.BackgroundFocusBrush;
-            var g = e.Graphics;
+            Brush hoverBrush = SkinManager.BackgroundHoverBrush;
+            Brush downBrush = SkinManager.BackgroundFocusBrush;
+            Graphics g = e.Graphics;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
             g.Clear(SkinManager.BackdropColor);
 
             //Draw border
-            using (var borderPen = new Pen(SkinManager.DividersColor, 1))
+            using (Pen borderPen = new Pen(SkinManager.DividersColor, 1))
             {
-                g.DrawLine(borderPen, new Point(0, _actionBarBounds.Bottom), new Point(0, ClientSize.Height - 2));
-                g.DrawLine(borderPen, new Point(ClientSize.Width - 1, _actionBarBounds.Bottom), new Point(ClientSize.Width - 1, ClientSize.Height - 2));
+                g.DrawLine(borderPen, new Point(0, ActionBarBounds.Bottom), new Point(0, ClientSize.Height - 2));
+                g.DrawLine(borderPen, new Point(ClientSize.Width - 1, ActionBarBounds.Bottom), new Point(ClientSize.Width - 1, ClientSize.Height - 2));
                 g.DrawLine(borderPen, new Point(0, ClientSize.Height - 1), new Point(ClientSize.Width - 1, ClientSize.Height - 1));
             }
 
@@ -1004,8 +1139,8 @@ namespace MaterialSkin.Controls
             {
                 if (ControlBox)
                 {
-                    g.FillRectangle(SkinManager.ColorScheme.DarkPrimaryBrush, _statusBarBounds);
-                    g.FillRectangle(SkinManager.ColorScheme.PrimaryBrush, _actionBarBounds);
+                    g.FillRectangle(SkinManager.ColorScheme.DarkPrimaryBrush, StatusBarBounds);
+                    g.FillRectangle(SkinManager.ColorScheme.PrimaryBrush, ActionBarBounds);
                 }
 
                 // Determine whether or not we even should be drawing the buttons.
@@ -1014,37 +1149,49 @@ namespace MaterialSkin.Controls
 
                 // When MaximizeButton == false, the minimize button will be painted in its place
                 if (_buttonState == ButtonState.MinOver && showMin)
-                    g.FillRectangle(hoverBrush, showMax ? _minButtonBounds : _maxButtonBounds);
+                {
+                    g.FillRectangle(hoverBrush, showMax ? MinButtonBounds : MaxButtonBounds);
+                }
 
                 if (_buttonState == ButtonState.MinDown && showMin)
-                    g.FillRectangle(downBrush, showMax ? _minButtonBounds : _maxButtonBounds);
+                {
+                    g.FillRectangle(downBrush, showMax ? MinButtonBounds : MaxButtonBounds);
+                }
 
                 if (_buttonState == ButtonState.MaxOver && showMax)
-                    g.FillRectangle(hoverBrush, _maxButtonBounds);
+                {
+                    g.FillRectangle(hoverBrush, MaxButtonBounds);
+                }
 
                 if (_buttonState == ButtonState.MaxDown && showMax)
-                    g.FillRectangle(downBrush, _maxButtonBounds);
+                {
+                    g.FillRectangle(downBrush, MaxButtonBounds);
+                }
 
                 if (_buttonState == ButtonState.XOver && ControlBox)
-                    g.FillRectangle(SkinManager.BackgroundHoverRedBrush, _xButtonBounds);
+                {
+                    g.FillRectangle(SkinManager.BackgroundHoverRedBrush, XButtonBounds);
+                }
 
                 if (_buttonState == ButtonState.XDown && ControlBox)
-                    g.FillRectangle(SkinManager.BackgroundDownRedBrush, _xButtonBounds);
+                {
+                    g.FillRectangle(SkinManager.BackgroundDownRedBrush, XButtonBounds);
+                }
 
-                using (var formButtonsPen = new Pen(SkinManager.ColorScheme.TextColor, 2))
+                using (Pen formButtonsPen = new Pen(SkinManager.ColorScheme.TextColor, 2))
                 {
                     // Minimize button.
                     if (showMin)
                     {
-                        int x = showMax ? _minButtonBounds.X : _maxButtonBounds.X;
-                        int y = showMax ? _minButtonBounds.Y : _maxButtonBounds.Y;
+                        int x = showMax ? MinButtonBounds.X : MaxButtonBounds.X;
+                        int y = showMax ? MinButtonBounds.Y : MaxButtonBounds.Y;
 
                         g.DrawLine(
                             formButtonsPen,
-                            x + (int)(_minButtonBounds.Width * 0.33),
-                            y + (int)(_minButtonBounds.Height * 0.66),
-                            x + (int)(_minButtonBounds.Width * 0.66),
-                            y + (int)(_minButtonBounds.Height * 0.66)
+                            x + (int)(MinButtonBounds.Width * 0.33),
+                            y + (int)(MinButtonBounds.Height * 0.66),
+                            x + (int)(MinButtonBounds.Width * 0.66),
+                            y + (int)(MinButtonBounds.Height * 0.66)
                        );
                     }
 
@@ -1055,10 +1202,10 @@ namespace MaterialSkin.Controls
                         {
                             g.DrawRectangle(
                                 formButtonsPen,
-                                _maxButtonBounds.X + (int)(_maxButtonBounds.Width * 0.33),
-                                _maxButtonBounds.Y + (int)(_maxButtonBounds.Height * 0.36),
-                                (int)(_maxButtonBounds.Width * 0.39),
-                                (int)(_maxButtonBounds.Height * 0.31)
+                                MaxButtonBounds.X + (int)(MaxButtonBounds.Width * 0.33),
+                                MaxButtonBounds.Y + (int)(MaxButtonBounds.Height * 0.36),
+                                (int)(MaxButtonBounds.Width * 0.39),
+                                (int)(MaxButtonBounds.Height * 0.31)
                             );
                         }
                         else
@@ -1066,35 +1213,35 @@ namespace MaterialSkin.Controls
                             // Change position of square
                             g.DrawRectangle(
                                 formButtonsPen,
-                                _maxButtonBounds.X + (int)(_maxButtonBounds.Width * 0.30),
-                                _maxButtonBounds.Y + (int)(_maxButtonBounds.Height * 0.42),
-                                (int)(_maxButtonBounds.Width * 0.40),
-                                (int)(_maxButtonBounds.Height * 0.32)
+                                MaxButtonBounds.X + (int)(MaxButtonBounds.Width * 0.30),
+                                MaxButtonBounds.Y + (int)(MaxButtonBounds.Height * 0.42),
+                                (int)(MaxButtonBounds.Width * 0.40),
+                                (int)(MaxButtonBounds.Height * 0.32)
                             );
                             // Draw lines for background square
                             g.DrawLine(formButtonsPen,
-                                _maxButtonBounds.X + (int)(_maxButtonBounds.Width * 0.42),
-                                _maxButtonBounds.Y + (int)(_maxButtonBounds.Height * 0.30),
-                                _maxButtonBounds.X + (int)(_maxButtonBounds.Width * 0.42),
-                                _maxButtonBounds.Y + (int)(_maxButtonBounds.Height * 0.38)
+                                MaxButtonBounds.X + (int)(MaxButtonBounds.Width * 0.42),
+                                MaxButtonBounds.Y + (int)(MaxButtonBounds.Height * 0.30),
+                                MaxButtonBounds.X + (int)(MaxButtonBounds.Width * 0.42),
+                                MaxButtonBounds.Y + (int)(MaxButtonBounds.Height * 0.38)
                             );
                             g.DrawLine(formButtonsPen,
-                                _maxButtonBounds.X + (int)(_maxButtonBounds.Width * 0.40),
-                                _maxButtonBounds.Y + (int)(_maxButtonBounds.Height * 0.30),
-                                _maxButtonBounds.X + (int)(_maxButtonBounds.Width * 0.86),
-                                _maxButtonBounds.Y + (int)(_maxButtonBounds.Width * 0.30)
+                                MaxButtonBounds.X + (int)(MaxButtonBounds.Width * 0.40),
+                                MaxButtonBounds.Y + (int)(MaxButtonBounds.Height * 0.30),
+                                MaxButtonBounds.X + (int)(MaxButtonBounds.Width * 0.86),
+                                MaxButtonBounds.Y + (int)(MaxButtonBounds.Width * 0.30)
                             );
                             g.DrawLine(formButtonsPen,
-                                _maxButtonBounds.X + (int)(_maxButtonBounds.Width * 0.82),
-                                _maxButtonBounds.Y + (int)(_maxButtonBounds.Height * 0.28),
-                                _maxButtonBounds.X + (int)(_maxButtonBounds.Width * 0.82),
-                                _maxButtonBounds.Y + (int)(_maxButtonBounds.Width * 0.64)
+                                MaxButtonBounds.X + (int)(MaxButtonBounds.Width * 0.82),
+                                MaxButtonBounds.Y + (int)(MaxButtonBounds.Height * 0.28),
+                                MaxButtonBounds.X + (int)(MaxButtonBounds.Width * 0.82),
+                                MaxButtonBounds.Y + (int)(MaxButtonBounds.Width * 0.64)
                             );
                             g.DrawLine(formButtonsPen,
-                                _maxButtonBounds.X + (int)(_maxButtonBounds.Width * 0.70),
-                                _maxButtonBounds.Y + (int)(_maxButtonBounds.Height * 0.62),
-                                _maxButtonBounds.X + (int)(_maxButtonBounds.Width * 0.84),
-                                _maxButtonBounds.Y + (int)(_maxButtonBounds.Width * 0.62)
+                                MaxButtonBounds.X + (int)(MaxButtonBounds.Width * 0.70),
+                                MaxButtonBounds.Y + (int)(MaxButtonBounds.Height * 0.62),
+                                MaxButtonBounds.X + (int)(MaxButtonBounds.Width * 0.84),
+                                MaxButtonBounds.Y + (int)(MaxButtonBounds.Width * 0.62)
                             );
                         }
                     }
@@ -1104,18 +1251,18 @@ namespace MaterialSkin.Controls
                     {
                         g.DrawLine(
                             formButtonsPen,
-                            _xButtonBounds.X + (int)(_xButtonBounds.Width * 0.33),
-                            _xButtonBounds.Y + (int)(_xButtonBounds.Height * 0.33),
-                            _xButtonBounds.X + (int)(_xButtonBounds.Width * 0.66),
-                            _xButtonBounds.Y + (int)(_xButtonBounds.Height * 0.66)
+                            XButtonBounds.X + (int)(XButtonBounds.Width * 0.33),
+                            XButtonBounds.Y + (int)(XButtonBounds.Height * 0.33),
+                            XButtonBounds.X + (int)(XButtonBounds.Width * 0.66),
+                            XButtonBounds.Y + (int)(XButtonBounds.Height * 0.66)
                        );
 
                         g.DrawLine(
                             formButtonsPen,
-                            _xButtonBounds.X + (int)(_xButtonBounds.Width * 0.66),
-                            _xButtonBounds.Y + (int)(_xButtonBounds.Height * 0.33),
-                            _xButtonBounds.X + (int)(_xButtonBounds.Width * 0.33),
-                            _xButtonBounds.Y + (int)(_xButtonBounds.Height * 0.66));
+                            XButtonBounds.X + (int)(XButtonBounds.Width * 0.66),
+                            XButtonBounds.Y + (int)(XButtonBounds.Height * 0.33),
+                            XButtonBounds.X + (int)(XButtonBounds.Width * 0.33),
+                            XButtonBounds.Y + (int)(XButtonBounds.Height * 0.66));
                     }
                 }
             }
@@ -1124,19 +1271,23 @@ namespace MaterialSkin.Controls
             if (DrawerTabControl != null && _formStyle != FormStyles.ActionBar_None && _formStyle != FormStyles.StatusAndActionBar_None)
             {
                 if (_buttonState == ButtonState.DrawerOver)
-                    g.FillRectangle(hoverBrush, _drawerButtonBounds);
+                {
+                    g.FillRectangle(hoverBrush, DrawerButtonBounds);
+                }
 
                 if (_buttonState == ButtonState.DrawerDown)
-                    g.FillRectangle(downBrush, _drawerButtonBounds);
+                {
+                    g.FillRectangle(downBrush, DrawerButtonBounds);
+                }
 
                 _drawerIconRect = new Rectangle(SkinManager.FORM_PADDING / 2, STATUS_BAR_HEIGHT, ACTION_BAR_HEIGHT_DEFAULT, ACTION_BAR_HEIGHT);
                 // Ripple
                 if (_clickAnimManager.IsAnimating())
                 {
-                    var clickAnimProgress = _clickAnimManager.GetProgress();
+                    double clickAnimProgress = _clickAnimManager.GetProgress();
 
-                    var rippleBrush = new SolidBrush(Color.FromArgb((int)(51 - (clickAnimProgress * 50)), Color.White));
-                    var rippleSize = (int)(clickAnimProgress * _drawerIconRect.Width * 1.75);
+                    SolidBrush rippleBrush = new SolidBrush(Color.FromArgb((int)(51 - (clickAnimProgress * 50)), Color.White));
+                    int rippleSize = (int)(clickAnimProgress * _drawerIconRect.Width * 1.75);
 
                     g.SetClip(_drawerIconRect);
                     g.FillEllipse(rippleBrush, new Rectangle(_animationSource.X - rippleSize / 2, _animationSource.Y - rippleSize / 2, rippleSize, rippleSize));
@@ -1144,31 +1295,31 @@ namespace MaterialSkin.Controls
                     rippleBrush.Dispose();
                 }
 
-                using (var formButtonsPen = new Pen(SkinManager.ColorScheme.TextColor, 2))
+                using (Pen formButtonsPen = new Pen(SkinManager.ColorScheme.TextColor, 2))
                 {
                     // Middle line
                     g.DrawLine(
                        formButtonsPen,
-                       _drawerIconRect.X + (int)(SkinManager.FORM_PADDING),
-                       _drawerIconRect.Y + (int)(ACTION_BAR_HEIGHT / 2),
-                       _drawerIconRect.X + (int)(SkinManager.FORM_PADDING) + 18,
-                       _drawerIconRect.Y + (int)(ACTION_BAR_HEIGHT / 2));
+                       _drawerIconRect.X + SkinManager.FORM_PADDING,
+                       _drawerIconRect.Y + ACTION_BAR_HEIGHT / 2,
+                       _drawerIconRect.X + SkinManager.FORM_PADDING + 18,
+                       _drawerIconRect.Y + ACTION_BAR_HEIGHT / 2);
 
                     // Bottom line
                     g.DrawLine(
                        formButtonsPen,
-                       _drawerIconRect.X + (int)(SkinManager.FORM_PADDING),
-                       _drawerIconRect.Y + (int)(ACTION_BAR_HEIGHT / 2) - 6,
-                       _drawerIconRect.X + (int)(SkinManager.FORM_PADDING) + 18,
-                       _drawerIconRect.Y + (int)(ACTION_BAR_HEIGHT / 2) - 6);
+                       _drawerIconRect.X + SkinManager.FORM_PADDING,
+                       _drawerIconRect.Y + ACTION_BAR_HEIGHT / 2 - 6,
+                       _drawerIconRect.X + SkinManager.FORM_PADDING + 18,
+                       _drawerIconRect.Y + ACTION_BAR_HEIGHT / 2 - 6);
 
                     // Top line
                     g.DrawLine(
                        formButtonsPen,
-                       _drawerIconRect.X + (int)(SkinManager.FORM_PADDING),
-                       _drawerIconRect.Y + (int)(ACTION_BAR_HEIGHT / 2) + 6,
-                       _drawerIconRect.X + (int)(SkinManager.FORM_PADDING) + 18,
-                       _drawerIconRect.Y + (int)(ACTION_BAR_HEIGHT / 2) + 6);
+                       _drawerIconRect.X + SkinManager.FORM_PADDING,
+                       _drawerIconRect.Y + ACTION_BAR_HEIGHT / 2 + 6,
+                       _drawerIconRect.X + SkinManager.FORM_PADDING + 18,
+                       _drawerIconRect.Y + ACTION_BAR_HEIGHT / 2 + 6);
                 }
             }
 
@@ -1178,7 +1329,7 @@ namespace MaterialSkin.Controls
                 using (NativeTextRenderer NativeText = new NativeTextRenderer(g))
                 {
                     Rectangle textLocation = new Rectangle(DrawerTabControl != null ? TITLE_LEFT_PADDING : TITLE_LEFT_PADDING - (ICON_SIZE + (ACTION_BAR_PADDING*2)), STATUS_BAR_HEIGHT, ClientSize.Width, ACTION_BAR_HEIGHT);
-                    NativeText.DrawTransparentText(Text, SkinManager.getLogFontByType(MaterialSkinManager.fontType.H6),
+                    NativeText.DrawTransparentText(Text, SkinManager.GetLogFontByType(MaterialSkinManager.FontType.H6),
                         SkinManager.ColorScheme.TextColor,
                         textLocation.Location,
                         textLocation.Size,
@@ -1197,9 +1348,13 @@ namespace MaterialSkin.Controls
         private static IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex)
         {
             if (IntPtr.Size == 8)
+            {
                 return GetWindowLongPtr64(hWnd, nIndex);
+            }
             else
+            {
                 return GetWindowLong(hWnd, nIndex);
+            }
         }
 
         /// <summary>
@@ -1210,34 +1365,39 @@ namespace MaterialSkin.Controls
         private static IntPtr SetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong)
         {
             if (IntPtr.Size == 8)
+            {
                 return SetWindowLongPtr64(hWnd, nIndex, dwNewLong);
+            }
             else
+            {
                 return SetWindowLong(hWnd, nIndex, dwNewLong.ToInt32());
+            }
         }
 
-        [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
-        private static extern IntPtr GetWindowLong(IntPtr hWnd, int nIndex);
+        [LibraryImport("user32.dll", EntryPoint = "GetWindowLongA")]
+        private static partial IntPtr GetWindowLong(IntPtr hWnd, int nIndex);
 
-        [DllImport("user32.dll", EntryPoint = "GetWindowLongPtr")]
-        private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, int nIndex);
+        [LibraryImport("user32.dll", EntryPoint = "GetWindowLongPtrA")]
+        private static partial IntPtr GetWindowLongPtr64(IntPtr hWnd, int nIndex);
 
-        [DllImport("user32.dll", EntryPoint = "SetWindowLong")]
-        private static extern IntPtr SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+        [LibraryImport("user32.dll", EntryPoint = "SetWindowLongA")]
+        private static partial IntPtr SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
-        [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr")]
-        private static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+        [LibraryImport("user32.dll", EntryPoint = "SetWindowLongPtrA")]
+        private static partial IntPtr SetWindowLongPtr64(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
 
-        [DllImport("user32.dll")]
-        private static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+        [LibraryImport("user32.dll", EntryPoint = "SendMessageA")]
+        private static partial int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
 
-        [DllImport("user32.dll")]
-        private static extern bool ReleaseCapture();
+        [LibraryImport("user32.dll", EntryPoint = "ReleaseCapture")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static partial bool ReleaseCapture();
 
-        [DllImport("user32.dll")]
-        private static extern int TrackPopupMenuEx(IntPtr hmenu, uint fuFlags, int x, int y, IntPtr hwnd, IntPtr lptpm);
+        [LibraryImport("user32.dll", EntryPoint = "TrackPopupMenuEx")]
+        private static partial int TrackPopupMenuEx(IntPtr hmenu, uint fuFlags, int x, int y, IntPtr hwnd, IntPtr lptpm);
 
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
+        [LibraryImport("user32.dll", EntryPoint = "GetSystemMenu")]
+        private static partial IntPtr GetSystemMenu(IntPtr hWnd, [MarshalAs(UnmanagedType.Bool)] bool bRevert);
         #endregion
     }
 
@@ -1251,12 +1411,12 @@ namespace MaterialSkin.Controls
             SetStyle(ControlStyles.Selectable | ControlStyles.OptimizedDoubleBuffer | ControlStyles.EnableNotifyMessage, true);
         }
 
-        public void Attach(Control control)
+        public static void Attach(Control control)
         {
             MouseWheelRedirector.Attach(control);
         }
 
-        public void Detach(Control control)
+        public static void Detach(Control control)
         {
             MouseWheelRedirector.Detach(control);
         }

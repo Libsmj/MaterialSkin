@@ -1,11 +1,8 @@
 ﻿#region Imports
 
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing.Design;
-using System.Windows.Forms;
 
 #endregion
 
@@ -39,31 +36,31 @@ namespace MaterialSkin
         protected new void Add(object item)
         {
             base.Add(item);
-            ItemUpdated?.Invoke(this, null);
+            ItemUpdated?.Invoke(this, EventArgs.Empty);
         }
 
         protected override void InsertItem(int index, object item)
         {
             base.InsertItem(index, item);
-            ItemUpdated?.Invoke(this, null);
+            ItemUpdated?.Invoke(this, EventArgs.Empty);
         }
 
         protected override void RemoveItem(int value)
         {
             base.RemoveItem(value);
-            ItemUpdated?.Invoke(this, null);
+            ItemUpdated?.Invoke(this, EventArgs.Empty);
         }
 
         protected new void Clear()
         {
             base.Clear();
-            ItemUpdated?.Invoke(this, null);
+            ItemUpdated?.Invoke(this, EventArgs.Empty);
         }
 
         protected override void ClearItems()
         {
             base.ClearItems();
-            ItemUpdated?.Invoke(this, null);
+            ItemUpdated?.Invoke(this, EventArgs.Empty);
         }
     }
 

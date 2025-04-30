@@ -3,49 +3,58 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Diagnostics.CodeAnalysis;
     using System.Drawing;
     using System.Drawing.Imaging;
     using System.Windows.Forms;
+    using MaterialSkin;
     using MaterialSkin.Animations;
 
     public class MaterialMaskedTextBox : Control, IMaterialControl
     {
 
-        MaterialContextMenuStrip cms = new BaseTextBoxContextMenuStrip();
+        readonly MaterialContextMenuStrip cms = new BaseTextBoxContextMenuStrip();
         ContextMenuStrip _lastContextMenuStrip = new ContextMenuStrip();
 
         //Properties for managing the material design properties
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Depth { get; set; }
 
         [Browsable(false)]
         public MaterialSkinManager SkinManager => MaterialSkinManager.Instance;
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MouseState MouseState { get; set; }
 
         //Unused properties
         [Browsable(false)]
-        public override System.Drawing.Image BackgroundImage { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public override Image? BackgroundImage { get; set; }
 
         [Browsable(false)]
-        public override System.Windows.Forms.ImageLayout BackgroundImageLayout { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public override ImageLayout BackgroundImageLayout { get; set; }
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public string SelectedText { get { return baseTextBox.SelectedText; } set { baseTextBox.SelectedText = value; } }
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int SelectionStart { get { return baseTextBox.SelectionStart; } set { baseTextBox.SelectionStart = value; } }
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int SelectionLength { get { return baseTextBox.SelectionLength; } set { baseTextBox.SelectionLength = value; } }
         
         [Browsable(false)]
         public int TextLength { get { return baseTextBox.TextLength; } }
 
         [Browsable(false)]
-        public override System.Drawing.Color ForeColor { get; set; }
-
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public override Color ForeColor { get; set; }
 
         //Material Skin properties
 
@@ -73,19 +82,24 @@
             {
                 _showAssistiveText = value;
                 if (_showAssistiveText)
+                {
                     _helperTextHeight = HELPER_TEXT_HEIGHT;
+                }
                 else
+                {
                     _helperTextHeight = 0;
+                }
+
                 UpdateHeight();
                 //UpdateRects();
                 Invalidate();
             }
         }
 
-        private string _helperText;
+        private string? _helperText;
 
         [Category("Material Skin"), DefaultValue(""), Localizable(true), Description("Helper text conveys additional guidance about the input field, such as how it will be used.")]
-        public string HelperText
+        public string? HelperText
         {
             get { return _helperText; }
             set
@@ -95,10 +109,10 @@
             }
         }
 
-        private string _errorMessage;
+        private string? _errorMessage;
 
         [Category("Material Skin"), DefaultValue(""), Localizable(true), Description("When text input isn't accepted, an error message can display instructions on how to fix it. Error messages are displayed below the input line, replacing helper text until fixed.")]
-        public string ErrorMessage
+        public string? ErrorMessage
         {
             get { return _errorMessage; }
             set
@@ -124,38 +138,40 @@
         [Category("Material Skin"), DefaultValue(true)]
         public bool UseAccent { get; set; }
 
-        private Image _leadingIcon;
+        private Image? _leadingIcon;
 
         [Category("Material Skin"), Browsable(true), Localizable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         /// <summary>
         /// Gets or sets the leading Icon
         /// </summary>
-        public Image LeadingIcon
+        public Image? LeadingIcon
         {
             get { return _leadingIcon; }
             set
             {
                 _leadingIcon = value;
                 UpdateRects();
-                preProcessIcons();
+                PreProcessIcons();
                 Invalidate();
             }
         }
 
-        private Image _trailingIcon;
+        private Image? _trailingIcon;
 
         [Category("Material Skin"), Browsable(true), Localizable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         /// <summary>
         /// Gets or sets the trailing Icon
         /// </summary>
-        public Image TrailingIcon
+        public Image? TrailingIcon
         {
             get { return _trailingIcon; }
             set
             {
                 _trailingIcon = value;
                 UpdateRects();
-                preProcessIcons();
+                PreProcessIcons();
                 Invalidate();
             }
         }
@@ -177,16 +193,21 @@
                 _prefixsuffix = value;
                 UpdateRects();            //Génére une nullref exception
                 if (_prefixsuffix == PrefixSuffixTypes.Suffix)
+                {
                     RightToLeft = RightToLeft.Yes;
+                }
                 else
+                {
                     RightToLeft = RightToLeft.No;
+                }
+
                 Invalidate();
             }
         }
 
-        private string _prefixsuffixText;
+        private string? _prefixsuffixText;
         [Category("Material Skin"), DefaultValue(""), Localizable(true), Description("Set Prefix or Suffix text")]
-        public string PrefixSuffixText
+        public string? PrefixSuffixText
         {
             get { return _prefixsuffixText; }
             set
@@ -202,7 +223,11 @@
 
         //TextBox properties
 
-        public override ContextMenuStrip ContextMenuStrip
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+
+        //TextBox properties
+
+        public override ContextMenuStrip? ContextMenuStrip
         {
             get { return baseTextBox.ContextMenuStrip; }
             set
@@ -224,57 +249,75 @@
         [Browsable(false)]
         public override Color BackColor { get { return Parent == null ? SkinManager.BackgroundColor : Parent.BackColor; } }
 
+        [AllowNull]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public override string Text { get { return baseTextBox.Text; } set { baseTextBox.Text = value; } }
 
         [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public HorizontalAlignment TextAlign { get { return baseTextBox.TextAlign; } set { baseTextBox.TextAlign = value; } }
 
         [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public Char PromptChar { get { return baseTextBox.PromptChar; } set { baseTextBox.PromptChar = value; } }
 
         //[Category("Behavior")]
         //public CharacterCasing CharacterCasing { get { return baseTextBox.CharacterCasing; } set { baseTextBox.CharacterCasing = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool HideSelection { get { return baseTextBox.HideSelection; } set { baseTextBox.HideSelection = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool AllowPromptAsInput { get { return baseTextBox.AllowPromptAsInput; } set { baseTextBox.AllowPromptAsInput = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool AsciiOnly { get { return baseTextBox.AsciiOnly; } set { baseTextBox.AsciiOnly = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool BeepOnError { get { return baseTextBox.BeepOnError; } set { baseTextBox.BeepOnError = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MaskFormat CutCopyMaskFormat { get { return baseTextBox.CutCopyMaskFormat; } set { baseTextBox.CutCopyMaskFormat = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool HidePromptOnLeave { get { return baseTextBox.HidePromptOnLeave; } set { baseTextBox.HidePromptOnLeave = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public InsertKeyMode InsertKeyMode { get { return baseTextBox.InsertKeyMode; } set { baseTextBox.InsertKeyMode = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public string Mask { get { return baseTextBox.Mask; } set { baseTextBox.Mask = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int MaxLength { get { return baseTextBox.MaxLength; } set { baseTextBox.MaxLength = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public char PasswordChar { get { return baseTextBox.PasswordChar; } set { baseTextBox.PasswordChar = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool RejectInputOnFirstFailure { get { return baseTextBox.RejectInputOnFirstFailure; } set { baseTextBox.RejectInputOnFirstFailure = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ResetOnPrompt { get { return baseTextBox.ResetOnPrompt; } set { baseTextBox.ResetOnPrompt = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ResetOnSpace { get { return baseTextBox.ResetOnSpace; } set { baseTextBox.ResetOnSpace = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShortcutsEnabled 
         { 
             get 
@@ -296,21 +339,27 @@
         }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool SkipLiterals { get { return baseTextBox.SkipLiterals; } set { baseTextBox.SkipLiterals = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MaskFormat TextMaskFormat { get { return baseTextBox.TextMaskFormat; } set { baseTextBox.TextMaskFormat = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool UseSystemPasswordChar { get { return baseTextBox.UseSystemPasswordChar; } set { baseTextBox.UseSystemPasswordChar = value; } }
 
         [Browsable(false)]
-        public Type ValidatingType { get { return baseTextBox.ValidatingType; } set { baseTextBox.ValidatingType = value; } }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Type? ValidatingType { get { return baseTextBox.ValidatingType; } set { baseTextBox.ValidatingType = value; } }
 
-        public new object Tag { get { return baseTextBox.Tag; } set { baseTextBox.Tag = value; } }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public new object? Tag { get { return baseTextBox.Tag; } set { baseTextBox.Tag = value; } }
 
         private bool _readonly;
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ReadOnly
         {
             get { return _readonly; }
@@ -321,7 +370,7 @@
                 {
                     baseTextBox.ReadOnly = _readonly;
                 }
-                this.Invalidate();
+                Invalidate();
             }
         }
 
@@ -329,6 +378,7 @@
 
         [Category("Material Skin")]
         [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool AnimateReadOnly
         {
             get => _animateReadOnly;
@@ -376,11 +426,11 @@
 
         [Category("Action")]
         [Description("Fires when Leading Icon is clicked")]
-        public event EventHandler LeadingIconClick;
+        public event EventHandler? LeadingIconClick;
 
         [Category("Action")]
         [Description("Fires when Trailing Icon is clicked")]
-        public event EventHandler TrailingIconClick;
+        public event EventHandler? TrailingIconClick;
 
         #endregion
 
@@ -1365,8 +1415,8 @@
         private Rectangle _leadingIconBounds;
         private Rectangle _trailingIconBounds;
 
-        private Dictionary<string, TextureBrush> iconsBrushes;
-        private Dictionary<string, TextureBrush> iconsErrorBrushes;
+        private Dictionary<string, TextureBrush>? iconsBrushes;
+        private Dictionary<string, TextureBrush>? iconsErrorBrushes;
 
         protected readonly BaseMaskedTextBox baseTextBox;
 
@@ -1389,15 +1439,15 @@
 
             SkinManager.ColorSchemeChanged += sender =>
             {
-                preProcessIcons();
+                PreProcessIcons();
             };
 
             SkinManager.ThemeChanged += sender =>
             {
-                preProcessIcons();
+                PreProcessIcons();
             };
 
-            Font = SkinManager.getFontByType(MaterialSkinManager.fontType.Subtitle1);
+            Font = SkinManager.GetFontByType(MaterialSkinManager.FontType.Subtitle1);
 
             baseTextBox = new BaseMaskedTextBox
             {
@@ -1433,7 +1483,10 @@
                     _animationManager.StartNewAnimation(AnimationDirection.In);
                 }
                 else
-                    base.Focus();
+                {
+                    Focus();
+                }
+
                 UpdateRects();
             };
             baseTextBox.LostFocus += (sender, args) =>
@@ -1447,7 +1500,7 @@
             baseTextBox.BackColorChanged += new EventHandler(Redraw);
 
             baseTextBox.TabStop = true;
-            this.TabStop = false;
+            TabStop = false;
 
             cms.Opening += ContextMenuStripOnOpening;
             cms.OnItemClickStart += ContextMenuStripOnItemClickStart;
@@ -1455,7 +1508,7 @@
 
         }
 
-        private void Redraw(object sencer, EventArgs e)
+        private void Redraw(object? sencer, EventArgs e)
         {
             SuspendLayout();
             Invalidate();
@@ -1464,18 +1517,21 @@
 
         protected override void OnPaint(PaintEventArgs pevent)
         {
-            var g = pevent.Graphics;
+            Graphics g = pevent.Graphics;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-            g.Clear(Parent.BackColor);
-            SolidBrush backBrush = new SolidBrush(DrawHelper.BlendColor(Parent.BackColor, SkinManager.BackgroundAlternativeColor, SkinManager.BackgroundAlternativeColor.A));
-            
-            //backColor
-            g.FillRectangle(
-                !Enabled ? SkinManager.BackgroundDisabledBrush : // Disabled
-                isFocused ? SkinManager.BackgroundFocusBrush :  // Focused
-                MouseState == MouseState.HOVER && (!ReadOnly || (ReadOnly && !AnimateReadOnly)) ? SkinManager.BackgroundHoverBrush : // Hover
-                backBrush, // Normal
-                ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, LINE_Y);
+            if (Parent != null)
+            {
+                g.Clear(Parent.BackColor);
+                SolidBrush backBrush = new SolidBrush(DrawHelper.BlendColor(Parent.BackColor, SkinManager.BackgroundAlternativeColor, SkinManager.BackgroundAlternativeColor.A));
+
+                //backColor
+                g.FillRectangle(
+                    !Enabled ? SkinManager.BackgroundDisabledBrush : // Disabled
+                    isFocused ? SkinManager.BackgroundFocusBrush :  // Focused
+                    MouseState == MouseState.HOVER && (!ReadOnly || (ReadOnly && !AnimateReadOnly)) ? SkinManager.BackgroundHoverBrush : // Hover
+                    backBrush, // Normal
+                    ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, LINE_Y);
+            }
 
             baseTextBox.BackColor = !Enabled ? ColorHelper.RemoveAlpha(SkinManager.BackgroundDisabledColor, BackColor) : //Disabled
                 isFocused ? DrawHelper.BlendColor(BackColor, SkinManager.BackgroundFocusColor, SkinManager.BackgroundFocusColor.A) : //Focused
@@ -1485,19 +1541,27 @@
             //Leading Icon
             if (LeadingIcon != null)
             {
-                if (_errorState)
+                if (_errorState && iconsErrorBrushes != null)
+                {
                     g.FillRectangle(iconsErrorBrushes["_leadingIcon"], _leadingIconBounds);
-                else
+                }
+                else if (iconsBrushes != null)
+                {
                     g.FillRectangle(iconsBrushes["_leadingIcon"], _leadingIconBounds);
+                }
             }
 
             //Trailing Icon
             if (TrailingIcon != null)
             {
-                if (_errorState)
+                if (_errorState && iconsErrorBrushes != null)
+                {
                     g.FillRectangle(iconsErrorBrushes["_trailingIcon"], _trailingIconBounds);
-                else
+                }
+                else if (iconsBrushes != null)
+                {
                     g.FillRectangle(iconsBrushes["_trailingIcon"], _trailingIconBounds);
+                }
             }
 
             // HintText
@@ -1540,14 +1604,14 @@
                 {
                     Rectangle prefixRect = new Rectangle(
                         _left_padding - _prefix_padding,
-                        hasHint && UseTallSize ? (hintRect.Y + hintRect.Height) - 2 : ClientRectangle.Y,
+                        hasHint && UseTallSize ? hintRect.Y + hintRect.Height - 2 : ClientRectangle.Y,
                         _prefix_padding,
                         hasHint && UseTallSize ? LINE_Y - (hintRect.Y + hintRect.Height) : LINE_Y);
 
                     // Draw Prefix text 
                     NativeText.DrawTransparentText(
                     _prefixsuffixText,
-                    SkinManager.getLogFontByType(MaterialSkinManager.fontType.Subtitle1),
+                    SkinManager.GetLogFontByType(MaterialSkinManager.FontType.Subtitle1),
                     Enabled ? SkinManager.TextMediumEmphasisColor : SkinManager.TextDisabledOrHintColor,
                     prefixRect.Location,
                     prefixRect.Size,
@@ -1562,14 +1626,14 @@
                 {
                     Rectangle suffixRect = new Rectangle(
                         Width - _right_padding ,
-                        hasHint && UseTallSize ? (hintRect.Y + hintRect.Height) - 2 : ClientRectangle.Y,
+                        hasHint && UseTallSize ? hintRect.Y + hintRect.Height - 2 : ClientRectangle.Y,
                         _suffix_padding,
                         hasHint && UseTallSize ? LINE_Y - (hintRect.Y + hintRect.Height) : LINE_Y);
 
                     // Draw Suffix text 
                     NativeText.DrawTransparentText(
                     _prefixsuffixText,
-                    SkinManager.getLogFontByType(MaterialSkinManager.fontType.Subtitle1),
+                    SkinManager.GetLogFontByType(MaterialSkinManager.FontType.Subtitle1),
                     Enabled ? SkinManager.TextMediumEmphasisColor : SkinManager.TextDisabledOrHintColor,
                     suffixRect.Location,
                     suffixRect.Size,
@@ -1584,7 +1648,7 @@
                 {
                     NativeText.DrawTransparentText(
                     Hint,
-                    SkinManager.getTextBoxFontBySize(hintTextSize),
+                    SkinManager.GetTextBoxFontBySize(hintTextSize),
                     Enabled ? !_errorState || (!userTextPresent && !isFocused) ? isFocused ? UseAccent ?
                     SkinManager.ColorScheme.AccentColor : // Focus Accent
                     SkinManager.ColorScheme.PrimaryColor : // Focus Primary
@@ -1603,17 +1667,17 @@
                 using (NativeTextRenderer NativeText = new NativeTextRenderer(g))
                 {
                     NativeText.DrawTransparentText(
-                    HelperText,
-                    SkinManager.getTextBoxFontBySize(hintTextSize),
-                    Enabled ? !_errorState || (!userTextPresent && !isFocused) ? isFocused ? UseAccent ?
-                    SkinManager.ColorScheme.AccentColor : // Focus Accent
-                    SkinManager.ColorScheme.PrimaryColor : // Focus Primary
-                    SkinManager.TextMediumEmphasisColor : // not focused
-                    SkinManager.BackgroundHoverRedColor : // error state
-                    SkinManager.TextDisabledOrHintColor, // Disabled
-                    helperTextRect.Location,
-                    helperTextRect.Size,
-                    NativeTextRenderer.TextAlignFlags.Left | NativeTextRenderer.TextAlignFlags.Middle);
+                        HelperText ?? string.Empty,
+                        SkinManager.GetTextBoxFontBySize(hintTextSize),
+                        Enabled ? !_errorState || (!userTextPresent && !isFocused) ? isFocused ? UseAccent ?
+                        SkinManager.ColorScheme.AccentColor : // Focus Accent
+                        SkinManager.ColorScheme.PrimaryColor : // Focus Primary
+                        SkinManager.TextMediumEmphasisColor : // not focused
+                        SkinManager.BackgroundHoverRedColor : // error state
+                        SkinManager.TextDisabledOrHintColor, // Disabled
+                        helperTextRect.Location,
+                        helperTextRect.Size,
+                        NativeTextRenderer.TextAlignFlags.Left | NativeTextRenderer.TextAlignFlags.Middle);
                 }
             }
 
@@ -1624,7 +1688,7 @@
                 {
                     NativeText.DrawTransparentText(
                     ErrorMessage,
-                    SkinManager.getTextBoxFontBySize(hintTextSize),
+                    SkinManager.GetTextBoxFontBySize(hintTextSize),
                     Enabled ? 
                     SkinManager.BackgroundHoverRedColor : // error state
                     SkinManager.TextDisabledOrHintColor, // Disabled
@@ -1641,7 +1705,9 @@
             base.OnMouseMove(e);
 
             if (DesignMode)
+            {
                 return;
+            }
 
             if (LeadingIcon != null && _leadingIconBounds.Contains(e.Location) && LeadingIconClick != null)
             {
@@ -1661,7 +1727,9 @@
         protected override void OnMouseDown(MouseEventArgs e)
         {
             if (DesignMode)
+            {
                 return;
+            }
 
             if (LeadingIcon != null && _leadingIconBounds.Contains(e.Location))
             {
@@ -1682,7 +1750,9 @@
         protected override void OnMouseEnter(EventArgs e)
         {
             if (DesignMode)
+            {
                 return;
+            }
 
             base.OnMouseEnter(e);
             MouseState = MouseState.HOVER;
@@ -1692,10 +1762,14 @@
         protected override void OnMouseLeave(EventArgs e)
         {
             if (DesignMode)
+            {
                 return;
+            }
 
-            if (this.ClientRectangle.Contains(this.PointToClient(Control.MousePosition)))
+            if (ClientRectangle.Contains(PointToClient(MousePosition)))
+            {
                 return;
+            }
             else
             {
                 base.OnMouseLeave(e);
@@ -1709,7 +1783,7 @@
             base.OnResize(e);
 
             UpdateRects();
-            preProcessIcons();
+            PreProcessIcons();
 
             Size = new Size(Width, HEIGHT);
             LINE_Y = HEIGHT - ACTIVATION_INDICATOR_HEIGHT - _helperTextHeight;
@@ -1768,9 +1842,12 @@
             };
         }
 
-        private void preProcessIcons()
+        private void PreProcessIcons()
         {
-            if (_trailingIcon == null && _leadingIcon == null) return;
+            if (_trailingIcon == null && _leadingIcon == null)
+            {
+                return;
+            }
 
             // Calculate lightness and color
             float l = (SkinManager.Theme == MaterialSkinManager.Themes.LIGHT) ? 0f : 1f;
@@ -1850,7 +1927,7 @@
                 textureBrushGray.WrapMode = System.Drawing.Drawing2D.WrapMode.Clamp;
                 textureBrushRed.WrapMode = System.Drawing.Drawing2D.WrapMode.Clamp;
 
-                var iconRect = _leadingIconBounds;
+                Rectangle iconRect = _leadingIconBounds;
 
                 textureBrushGray.TranslateTransform(iconRect.X + iconRect.Width / 2 - _leadingIconIconResized.Width / 2,
                                                     iconRect.Y + iconRect.Height / 2 - _leadingIconIconResized.Height / 2);
@@ -1900,7 +1977,6 @@
                         destRect, GraphicsUnit.Pixel, redImageAttributes);
                 }
 
-
                 // added processed image to brush for drawing
                 TextureBrush textureBrushGray = new TextureBrush(bgray);
                 TextureBrush textureBrushRed = new TextureBrush(bred);
@@ -1908,7 +1984,7 @@
                 textureBrushGray.WrapMode = System.Drawing.Drawing2D.WrapMode.Clamp;
                 textureBrushRed.WrapMode = System.Drawing.Drawing2D.WrapMode.Clamp;
 
-                var iconRect = _trailingIconBounds;
+                Rectangle iconRect = _trailingIconBounds;
 
                 textureBrushGray.TranslateTransform(iconRect.X + iconRect.Width / 2 - _trailingIconResized.Width / 2,
                                                     iconRect.Y + iconRect.Height / 2 - _trailingIconResized.Height / 2);
@@ -1933,35 +2009,48 @@
         private void UpdateRects()
         {
             if (LeadingIcon != null)
+            {
                 _left_padding = LEFT_PADDING + ICON_SIZE;
+            }
             else
+            {
                 _left_padding = LEFT_PADDING;
+            }
 
             if (_trailingIcon != null)
+            {
                 _right_padding = RIGHT_PADDING + ICON_SIZE;
+            }
             else
+            {
                 _right_padding = RIGHT_PADDING;
+            }
 
             if (_prefixsuffix == PrefixSuffixTypes.Prefix && _prefixsuffixText != null && _prefixsuffixText.Length > 0)
             {
                 using (NativeTextRenderer NativeText = new NativeTextRenderer(CreateGraphics()))
                 {
-                    _prefix_padding = NativeText.MeasureLogString(_prefixsuffixText, SkinManager.getLogFontByType(MaterialSkinManager.fontType.Subtitle1)).Width + PREFIX_SUFFIX_PADDING;
+                    _prefix_padding = NativeText.MeasureLogString(_prefixsuffixText, SkinManager.GetLogFontByType(MaterialSkinManager.FontType.Subtitle1)).Width + PREFIX_SUFFIX_PADDING;
                     _left_padding += _prefix_padding;
                 }
             }
             else
+            {
                 _prefix_padding = 0;
+            }
+
             if (_prefixsuffix == PrefixSuffixTypes.Suffix && _prefixsuffixText != null && _prefixsuffixText.Length > 0)
             {
                 using (NativeTextRenderer NativeText = new NativeTextRenderer(CreateGraphics()))
                 {
-                    _suffix_padding = NativeText.MeasureLogString(_prefixsuffixText, SkinManager.getLogFontByType(MaterialSkinManager.fontType.Subtitle1)).Width + PREFIX_SUFFIX_PADDING;
+                    _suffix_padding = NativeText.MeasureLogString(_prefixsuffixText, SkinManager.GetLogFontByType(MaterialSkinManager.FontType.Subtitle1)).Width + PREFIX_SUFFIX_PADDING;
                     _right_padding += _suffix_padding;
                 }
             }
             else
+            {
                 _suffix_padding = 0;
+            }
 
             if (hasHint && UseTallSize && (isFocused || !String.IsNullOrEmpty(Text)))
             {
@@ -1984,9 +2073,14 @@
         {
             _errorState = ErrorState;
             if (_errorState)
+            {
                 baseTextBox.ForeColor = SkinManager.BackgroundHoverRedColor;
+            }
             else
+            {
                 baseTextBox.ForeColor = SkinManager.TextHighEmphasisColor;
+            }
+
             baseTextBox.Invalidate();
             Invalidate();
         }
@@ -1998,7 +2092,7 @@
 
         private void ContextMenuStripOnItemClickStart(object sender, ToolStripItemClickedEventArgs toolStripItemClickedEventArgs)
         {
-            switch (toolStripItemClickedEventArgs.ClickedItem.Text)
+            switch (toolStripItemClickedEventArgs.ClickedItem?.Text)
             {
                 case "Undo":
                     Undo();
@@ -2021,10 +2115,9 @@
             }
         }
 
-        private void ContextMenuStripOnOpening(object sender, CancelEventArgs cancelEventArgs)
+        private void ContextMenuStripOnOpening(object? sender, CancelEventArgs cancelEventArgs)
         {
-            var strip = sender as BaseTextBoxContextMenuStrip;
-            if (strip != null)
+            if (sender is BaseTextBoxContextMenuStrip strip)
             {
                 strip.undo.Enabled = baseTextBox.CanUndo && !ReadOnly;
                 strip.cut.Enabled = !string.IsNullOrEmpty(SelectedText) && !ReadOnly;
@@ -2035,7 +2128,7 @@
             }
         }
 
-        private void LeaveOnEnterKey_KeyDown(object sender, KeyEventArgs e)
+        private void LeaveOnEnterKey_KeyDown(object? sender, KeyEventArgs e)
         {
             if (e.KeyData == Keys.Enter)
             {

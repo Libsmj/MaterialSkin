@@ -1,5 +1,6 @@
 ﻿namespace MaterialSkin.Controls
 {
+    using MaterialSkin;
     using MaterialSkin.Animations;
     using System;
     using System.ComponentModel;
@@ -12,20 +13,25 @@
     {
         #region Public properties
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Depth { get; set; }
 
         [Browsable(false)]
         public MaterialSkinManager SkinManager => MaterialSkinManager.Instance;
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MouseState MouseState { get; set; }
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public Point MouseLocation { get; set; }
 
         private bool _ripple;
 
         [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2245:Do not assign a property to itself", Justification = "Trigger Autosize setter side effects")]
         public bool Ripple
         {
             get { return _ripple; }
@@ -44,6 +50,7 @@
         }
 
         [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ReadOnly { get; set; }
         #endregion
 
@@ -84,7 +91,9 @@
             CheckedChanged += (sender, args) =>
             {
                 if (Ripple)
+                {
                     _checkAM.StartNewAnimation(Checked ? AnimationDirection.In : AnimationDirection.Out);
+                }
             };
             _checkAM.OnAnimationProgress += sender => Invalidate();
             _hoverAM.OnAnimationProgress += sender => Invalidate();
@@ -110,7 +119,7 @@
 
             using (NativeTextRenderer NativeText = new NativeTextRenderer(CreateGraphics()))
             {
-                strSize = NativeText.MeasureLogString(Text, SkinManager.getLogFontByType(MaterialSkinManager.fontType.Body1));
+                strSize = NativeText.MeasureLogString(Text, SkinManager.GetLogFontByType(MaterialSkinManager.FontType.Body1));
             }
 
             int w = _boxOffset + TEXT_OFFSET + strSize.Width;
@@ -124,8 +133,10 @@
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
             // clear the control
-            g.Clear(Parent.BackColor);
-
+            if (Parent != null)
+            {
+                g.Clear(Parent.BackColor);
+            }
             int CHECKBOX_CENTER = _boxOffset + CHECKBOX_SIZE_HALF - 1;
             Point animationSource = new Point(CHECKBOX_CENTER, CHECKBOX_CENTER);
             double animationProgress = _checkAM.GetProgress();
@@ -158,7 +169,7 @@
                     double animationValue = _rippleAM.GetProgress(i);
                     int rippleSize = (_rippleAM.GetDirection(i) == AnimationDirection.InOutIn) ? (int)(rippleHeight * (0.7 + (0.3 * animationValue))) : rippleHeight;
 
-                    using (SolidBrush rippleBrush = new SolidBrush(Color.FromArgb((int)((animationValue * 40)), !Checked ? (SkinManager.Theme == MaterialSkinManager.Themes.LIGHT ? Color.Black : Color.White) : brush.Color)))
+                    using (SolidBrush rippleBrush = new SolidBrush(Color.FromArgb((int)(animationValue * 40), !Checked ? (SkinManager.Theme == MaterialSkinManager.Themes.LIGHT ? Color.Black : Color.White) : brush.Color)))
                     {
                         g.FillEllipse(rippleBrush, new Rectangle(animationSource.X - rippleSize / 2, animationSource.Y - rippleSize / 2, rippleSize, rippleSize));
                     }
@@ -168,7 +179,7 @@
             Rectangle checkMarkLineFill = new Rectangle(_boxOffset, _boxOffset, (int)(CHECKBOX_SIZE * animationProgress), CHECKBOX_SIZE);
             using (GraphicsPath checkmarkPath = DrawHelper.CreateRoundRect(_boxOffset - 0.5f, _boxOffset - 0.5f, CHECKBOX_SIZE, CHECKBOX_SIZE, 1))
             {
-                if (Enabled)
+                if (Enabled && Parent != null)
                 {
                     using (Pen pen2 = new Pen(DrawHelper.BlendColor(Parent.BackColor, Enabled ? SkinManager.CheckboxOffColor : SkinManager.CheckBoxOffDisabledColor, backgroundAlpha), 2))
                     {
@@ -181,9 +192,13 @@
                 else
                 {
                     if (Checked)
+                    {
                         g.FillPath(brush, checkmarkPath);
+                    }
                     else
+                    {
                         g.DrawPath(pen, checkmarkPath);
+                    }
                 }
 
                 g.DrawImageUnscaledAndClipped(DrawCheckMarkBitmap(), checkMarkLineFill);
@@ -193,7 +208,7 @@
             using (NativeTextRenderer NativeText = new NativeTextRenderer(g))
             {
                 Rectangle textLocation = new Rectangle(_boxOffset + TEXT_OFFSET, 0, Width - (_boxOffset + TEXT_OFFSET), HEIGHT_RIPPLE);
-                NativeText.DrawTransparentText(Text, SkinManager.getLogFontByType(MaterialSkinManager.fontType.Body1),
+                NativeText.DrawTransparentText(Text, SkinManager.GetLogFontByType(MaterialSkinManager.FontType.Body1),
                     Enabled ? SkinManager.TextHighEmphasisColor : SkinManager.TextDisabledOrHintColor,
                     textLocation.Location,
                     textLocation.Size,
@@ -205,6 +220,7 @@
             brush.Dispose();
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public override bool AutoSize
         {
             get { return base.AutoSize; }
@@ -222,7 +238,10 @@
         {
             base.OnCreateControl();
 
-            if (DesignMode) return;
+            if (DesignMode)
+            {
+                return;
+            }
 
             MouseState = MouseState.OUT;
 
@@ -274,7 +293,10 @@
                     _rippleAM.SecondaryIncrement = 0;
                     _rippleAM.StartNewAnimation(AnimationDirection.InOutIn, new object[] { Checked });
                 }
-                if (ReadOnly) CheckState = _oldCheckState;
+                if (ReadOnly)
+                {
+                    CheckState = _oldCheckState;
+                }
             };
 
             KeyDown += (sender, args) =>
@@ -284,7 +306,10 @@
                     _rippleAM.SecondaryIncrement = 0;
                     _rippleAM.StartNewAnimation(AnimationDirection.InOutIn, new object[] { Checked });
                 }
-                if (ReadOnly) CheckState = _oldCheckState;
+                if (ReadOnly)
+                {
+                    CheckState = _oldCheckState;
+                }
             };
 
             MouseUp += (sender, args) =>
@@ -296,7 +321,10 @@
                     _hoverAM.StartNewAnimation(AnimationDirection.Out, new object[] { Checked });
                     hovered = false;
                 }
-                if (ReadOnly) CheckState = _oldCheckState;
+                if (ReadOnly)
+                {
+                    CheckState = _oldCheckState;
+                }
             };
 
             KeyUp += (sender, args) =>
@@ -306,7 +334,10 @@
                     MouseState = MouseState.HOVER;
                     _rippleAM.SecondaryIncrement = 0.08;
                 }
-                if (ReadOnly) CheckState = _oldCheckState;
+                if (ReadOnly)
+                {
+                    CheckState = _oldCheckState;
+                }
             };
 
             MouseMove += (sender, args) =>
@@ -326,10 +357,13 @@
             // clear everything, transparent
             g.Clear(Color.Transparent);
 
-            // draw the checkmark lines
-            using (Pen pen = new Pen(Parent.BackColor, 2))
+            if (Parent != null)
             {
-                g.DrawLines(pen, CheckmarkLine);
+                // draw the checkmark lines
+                using (Pen pen = new Pen(Parent.BackColor, 2))
+                {
+                    g.DrawLines(pen, CheckmarkLine);
+                }
             }
 
             return checkMark;

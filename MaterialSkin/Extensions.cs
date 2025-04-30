@@ -20,7 +20,7 @@
         {
             try
             {
-                var type = objectToCheck.GetType();
+                Type type = objectToCheck.GetType();
 
                 return type.GetProperty(propertyName) != null;
             }
@@ -54,10 +54,12 @@
         /// </summary>
         /// <param name="plainString"></param>
         /// <returns></returns>
-        public static string ToSecureString(this string plainString)
+        public static string? ToSecureString(this string plainString)
         {
             if (plainString == null)
+            {
                 return null;
+            }
 
             string secureString = "";
             for (uint i = 0; i < plainString.Length; i++)
@@ -83,7 +85,7 @@
 
         public static int PercentageToColorComponent(this int percentage)
         {
-            return (int)((percentage / 100d) * 255d);
+            return (int)(percentage / 100d * 255d);
         }
     }
 }

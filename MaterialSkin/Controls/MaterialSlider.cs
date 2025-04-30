@@ -1,8 +1,6 @@
-﻿using System;
-using System.ComponentModel;
-using System.Drawing;
+﻿using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing.Drawing2D;
-using System.Windows.Forms;
 
 namespace MaterialSkin.Controls
 {
@@ -25,15 +23,16 @@ namespace MaterialSkin.Controls
         private const int _thumbRadius = 20;
         private const int _thumbRadiusHoverPressed = 40;
 
-
         #endregion
 
         #region "Public Properties"
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Depth { get; set; }
         [Browsable(false)]
         public MaterialSkinManager SkinManager { get { return MaterialSkinManager.Instance; } }
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MouseState MouseState { get; set; }
 
         private int _value;
@@ -46,13 +45,19 @@ namespace MaterialSkin.Controls
             set
             {
                 if (value < _rangeMin)
+                {
                     _value = _rangeMin;
+                }
                 else if (value > _rangeMax)
+                {
                     _value = _rangeMax;
+                }
                 else
-					_value = value;
+                {
+                    _value = value;
+                }
                 //_mouseX = _sliderRectangle.X + ((int)((double)_value / (double)(RangeMax - RangeMin) * (double)(_sliderRectangle.Width) - _thumbRadius / 2));
-                _mouseX = _sliderRectangle.X + ((int)((double)_value / (double)(RangeMax - RangeMin) * (double)(_sliderRectangle.Width - _thumbRadius)));
+                _mouseX = _sliderRectangle.X + ((int)(_value / (double)(RangeMax - RangeMin) * (_sliderRectangle.Width - _thumbRadius)));
                 RecalcutlateIndicator();
             }
         }
@@ -67,11 +72,17 @@ namespace MaterialSkin.Controls
             set
             {
                 if (value > _rangeMax)
+                {
                     _valueMax = _rangeMax;
+                }
                 else if (value < _rangeMin)
+                {
                     _valueMax = _rangeMin;
+                }
                 else
+                {
                     _valueMax = value;
+                }
             }
         }
 
@@ -86,7 +97,7 @@ namespace MaterialSkin.Controls
             {
                 _rangeMax = value;
                 //_mouseX = _sliderRectangle.X + ((int)((double)_value / (double)(RangeMax - RangeMin) * (double)(_sliderRectangle.Width) - _thumbRadius / 2));
-                _mouseX = _sliderRectangle.X + ((int)((double)_value / (double)(RangeMax - RangeMin) * (double)(_sliderRectangle.Width - _thumbRadius)));
+                _mouseX = _sliderRectangle.X + ((int)(_value / (double)(RangeMax - RangeMin) * (_sliderRectangle.Width - _thumbRadius)));
                 RecalcutlateIndicator();
             }
         }
@@ -102,12 +113,15 @@ namespace MaterialSkin.Controls
             {
                 _rangeMin = value;
                 //_mouseX = _sliderRectangle.X + ((int)((double)_value / (double)(RangeMax - RangeMin) * (double)(_sliderRectangle.Width) - _thumbRadius / 2));
-                _mouseX = _sliderRectangle.X + ((int)((double)_value / (double)(RangeMax - RangeMin) * (double)(_sliderRectangle.Width - _thumbRadius)));
+                _mouseX = _sliderRectangle.X + ((int)(_value / (double)(RangeMax - RangeMin) * (_sliderRectangle.Width - _thumbRadius)));
                 RecalcutlateIndicator();
             }
         }
 
+        [AllowNull]
         private string _text;
+
+        [AllowNull]
         [DefaultValue("MyData")]
         [Category("Material Skin")]
         [Description("Set control text")]
@@ -164,11 +178,11 @@ namespace MaterialSkin.Controls
             set { _useAccentColor = value; Invalidate(); }
         }
 
-        private MaterialSkinManager.fontType _fontType = MaterialSkinManager.fontType.Body1;
+        private MaterialSkinManager.FontType _fontType = MaterialSkinManager.FontType.Body1;
 
         [Category("Material Skin"),
-        DefaultValue(typeof(MaterialSkinManager.fontType), "Body1")]
-        public MaterialSkinManager.fontType FontType
+        DefaultValue(typeof(MaterialSkinManager.FontType), "Body1")]
+        public MaterialSkinManager.FontType FontType
         {
             get
             {
@@ -177,11 +191,10 @@ namespace MaterialSkin.Controls
             set
             {
                 _fontType = value;
-                Font = SkinManager.getFontByType(_fontType);
+                Font = SkinManager.GetFontByType(_fontType);
                 Refresh();
             }
         }
-
 
         #endregion
 
@@ -190,7 +203,7 @@ namespace MaterialSkin.Controls
         [Category("Behavior")]
         [Description("Occurs when value change.")]
         public delegate void ValueChanged(object sender, int newValue);
-        public event ValueChanged onValueChanged;
+        public event ValueChanged OnValueChanged;
 
         #endregion
 
@@ -245,7 +258,7 @@ namespace MaterialSkin.Controls
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-            if (e.Button == System.Windows.Forms.MouseButtons.Left && e.Y > _indicatorRectanglePressed.Top && e.Y < _indicatorRectanglePressed.Bottom)
+            if (e.Button == MouseButtons.Left && e.Y > _indicatorRectanglePressed.Top && e.Y < _indicatorRectanglePressed.Bottom)
             {
                 _mousePressed = true;
                 UpdateValue(e);
@@ -256,17 +269,26 @@ namespace MaterialSkin.Controls
         {
             base.OnMouseWheel(e);
             if (_valueMax != 0 && (Value + e.Delta / -40) > _valueMax)
+            {
                 Value = _valueMax;
+            }
             else
+            {
                 Value += e.Delta/-40;
-            onValueChanged?.Invoke(this, _value);
+            }
+
+            OnValueChanged?.Invoke(this, _value);
         }
 
         protected override void OnMouseEnter(EventArgs e)
         {
             base.OnMouseEnter(e);
             _hovered = true;
-            if (!this.Focused) this.Focus();
+            if (!Focused)
+            {
+                Focus();
+            }
+
             Invalidate();
         }
 
@@ -274,7 +296,11 @@ namespace MaterialSkin.Controls
         {
             base.OnMouseLeave(e);
             _hovered = false;
-            if (this.Focused) this.Parent.Focus();
+            if (Focused)
+            {
+                Parent?.Focus();
+            }
+
             Invalidate();
         }
 
@@ -323,7 +349,7 @@ namespace MaterialSkin.Controls
                 if (v != _value)
                 {
                     _value = v;
-                    onValueChanged?.Invoke(this, _value);
+                    OnValueChanged?.Invoke(this, _value);
                 }
                 RecalcutlateIndicator();
             }
@@ -335,13 +361,13 @@ namespace MaterialSkin.Controls
             Size valueSize;
             using (NativeTextRenderer NativeText = new NativeTextRenderer(CreateGraphics()))
             {
-                textSize = NativeText.MeasureLogString(_showText ? Text : "", SkinManager.getLogFontByType(_fontType));
-                valueSize = NativeText.MeasureLogString(_showValue ? RangeMax.ToString() + _valueSuffix : "" , SkinManager.getLogFontByType(_fontType));
+                textSize = NativeText.MeasureLogString(_showText ? Text : "", SkinManager.GetLogFontByType(_fontType));
+                valueSize = NativeText.MeasureLogString(_showValue ? RangeMax.ToString() + _valueSuffix : "" , SkinManager.GetLogFontByType(_fontType));
             }
             _valueRectangle = new Rectangle(Width - valueSize.Width - _thumbRadiusHoverPressed / 4, 0, valueSize.Width + _thumbRadiusHoverPressed / 4, Height);
             _textRectangle = new Rectangle(0, 0, textSize.Width + _thumbRadiusHoverPressed/4, Height);
             _sliderRectangle = new Rectangle(_textRectangle.Right , 0, _valueRectangle.Left - _textRectangle.Right , _thumbRadius);
-            _mouseX = _sliderRectangle.X + ((int)((double)_value / (double)(_rangeMax - _rangeMin) * (double)(_sliderRectangle.Width) - _thumbRadius / 2));
+            _mouseX = _sliderRectangle.X + ((int)(_value / (double)(_rangeMax - _rangeMin) * _sliderRectangle.Width - _thumbRadius / 2));
             RecalcutlateIndicator();
         }
 
@@ -355,11 +381,14 @@ namespace MaterialSkin.Controls
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            var g = e.Graphics;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            Graphics g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-            g.Clear(Parent.BackColor);
-            
+            if (Parent != null)
+            {
+                g.Clear(Parent.BackColor);
+            }
+
             Color _inactiveTrackColor;
             Color _accentColor;
             Brush _accentBrush;
@@ -369,9 +398,13 @@ namespace MaterialSkin.Controls
             Color _thumbPressedColor;
 
             if (_useAccentColor)
+            {
                 _accentColor = SkinManager.ColorScheme.AccentColor;
+            }
             else
+            {
                 _accentColor = SkinManager.ColorScheme.PrimaryColor;
+            }
 
             _accentBrush = new SolidBrush(_accentColor);
             _disabledBrush = new SolidBrush(Color.FromArgb(255, 158, 158, 158));
@@ -443,24 +476,28 @@ namespace MaterialSkin.Controls
             using (NativeTextRenderer NativeText = new NativeTextRenderer(g))
             {
                 if (_showText == true)
+                {
                     // Draw text
                     NativeText.DrawTransparentText(
                     Text,
-                    SkinManager.getLogFontByType(_fontType),
+                    SkinManager.GetLogFontByType(_fontType),
                     Enabled ? SkinManager.TextHighEmphasisColor : SkinManager.TextDisabledOrHintColor,
                     _textRectangle.Location,
                     _textRectangle.Size,
                     NativeTextRenderer.TextAlignFlags.Left | NativeTextRenderer.TextAlignFlags.Middle);
- 
+                }
+
                 if (_showValue==true)
-                // Draw value
-                NativeText.DrawTransparentText(
+                {
+                    // Draw value
+                    NativeText.DrawTransparentText(
                     Value.ToString()+ValueSuffix,
-                    SkinManager.getLogFontByType(_fontType),
+                    SkinManager.GetLogFontByType(_fontType),
                     Enabled ? SkinManager.TextHighEmphasisColor : SkinManager.TextDisabledOrHintColor,
                     _valueRectangle.Location,
                     _valueRectangle.Size,
                     NativeTextRenderer.TextAlignFlags.Right | NativeTextRenderer.TextAlignFlags.Middle);
+                }
             }
 
         }

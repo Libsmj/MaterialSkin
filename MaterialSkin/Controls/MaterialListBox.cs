@@ -1,43 +1,31 @@
-#region Imports
-
-using System;
-using System.Drawing;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing.Design;
 using System.Drawing.Text;
-using System.Windows.Forms;
-using System.ComponentModel;
-using System.ComponentModel.Design;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
-
-#endregion
 
 namespace MaterialSkin.Controls
 {
-
-    #region MaterialListBox
-
     [DefaultProperty("Items")]
     [DefaultEvent("SelectedIndexChanged")]
     [ComVisible(true)]
-    public class MaterialListBox : Control, IMaterialControl
+    public partial class MaterialListBox : Control, IMaterialControl
     {
         #region Internal Vars
 
-        private ObservableCollection<MaterialListBoxItem> _items = new ObservableCollection<MaterialListBoxItem>();
-        private List<object> _selectedItems;
-        private List<object> _indicates;
+        private readonly ObservableCollection<MaterialListBoxItem> _items = new ObservableCollection<MaterialListBoxItem>();
+        private readonly List<object> _selectedItems;
+        private readonly List<object> _indicates;
         private bool _multiSelect;
         private int _selectedIndex;
-        private MaterialListBoxItem _selectedItem;
-        private string _selectedText;
+        private MaterialListBoxItem? _selectedItem;
+        private string? _selectedText;
         private bool _showScrollBar;
-        private bool _multiKeyDown;
+        private readonly bool _multiKeyDown;
         private int _hoveredItem;
-        private MaterialScrollBar _scrollBar;
-        private object _selectedValue;
+        private readonly MaterialScrollBar _scrollBar;
+        private object? _selectedValue;
 
         private bool _updating=false;
         private int _itemHeight;
@@ -69,17 +57,18 @@ namespace MaterialSkin.Controls
 
         #endregion Internal Vars
 
-
         #region Properties
 
         //Properties for managing the material design properties
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Depth { get; set; }
 
         [Browsable(false)]
         public MaterialSkinManager SkinManager => MaterialSkinManager.Instance;
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MouseState MouseState { get; set; }
 
         private bool useAccentColor;
@@ -102,21 +91,22 @@ namespace MaterialSkin.Controls
         public List<object> SelectedItems => _selectedItems;
 
         [Browsable(false), Category("Material Skin"), Description("Gets or sets the currently selected item in the ListBox.")]
-        public MaterialListBoxItem SelectedItem
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public MaterialListBoxItem? SelectedItem
         {
             get => _selectedItem;
             set
             {
                 _selectedItem = value;
-                _selectedIndex = _items.IndexOf(_selectedItem);
-                update_selection();
+
+                _selectedIndex = _selectedItem == null ? -1 : _items.IndexOf(_selectedItem);
+                Update_selection();
                 Invalidate();
             }
         }
 
-        [Browsable(false), Category("Material Skin"),
-         Description("Gets the currently selected Text in the ListBox.")]
-        public string SelectedText
+        [Browsable(false), Category("Material Skin"), Description("Gets the currently selected Text in the ListBox.")]
+        public string? SelectedText
         {
             get => _selectedText;
             //set
@@ -127,19 +117,20 @@ namespace MaterialSkin.Controls
         }
 
         [Browsable(false), Category("Material Skin"), Description("Gets or sets the zero-based index of the currently selected item in a ListBox.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int SelectedIndex
         {
             get => _selectedIndex;
             set
             {
                 _selectedIndex = value;
-                update_selection();
+                Update_selection();
                 Invalidate();
             }
         }
 
         [Browsable(true), Category("Material Skin"), Description("Gets the value of the member property specified by the ValueMember property.")]
-        public object SelectedValue
+        public object? SelectedValue
         {
             get => _selectedValue;
             //set
@@ -157,7 +148,7 @@ namespace MaterialSkin.Controls
             {
                 _multiSelect = value;
 
-                if (_selectedItems.Count > 1)
+                if (_selectedItems?.Count > 1)
                 {
                     _selectedItems.RemoveRange(1, _selectedItems.Count - 1);
                 }
@@ -193,16 +184,21 @@ namespace MaterialSkin.Controls
         }
 
         [Category("Material Skin"), Description("Gets or sets backcolor used by the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public override Color BackColor { get; set; }
 
         [Category("Material Skin"), Description("Gets or sets forecolor used by the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public override Color ForeColor { get; set; }
 
+        [AllowNull]
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public override string Text { get => base.Text; set => base.Text = value; }
 
         [Category("Material Skin"), Description("Gets or sets border color used by the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public Color BorderColor
         {
             get => _borderColor;
@@ -223,7 +219,7 @@ namespace MaterialSkin.Controls
                 _style = value;
                 UpdateItemSpecs();
 
-                InvalidateScroll(this, null);
+                InvalidateScroll(this, EventArgs.Empty);
                 Refresh();
             }
         }
@@ -259,21 +255,8 @@ namespace MaterialSkin.Controls
             );
             UpdateStyles();
             base.BackColor = Color.Transparent;
-            base.Font = SkinManager.getFontByType(MaterialSkinManager.fontType.Subtitle1);
-            _secondaryFont = SkinManager.getFontByType(MaterialSkinManager.fontType.Body1);
-            SetDefaults();
-            ShowBorder = true;
-            ShowScrollBar = false;
-            MultiSelect = false;
-            UseAccentColor = false;
-            ForeColor = SkinManager.TextHighEmphasisColor; // Color.Black;
-            BackColor = Color.White;
-            BorderColor = Color.LightGray;
-            UpdateProperties();
-        }
-
-        private void SetDefaults()
-        {
+            base.Font = SkinManager.GetFontByType(MaterialSkinManager.FontType.Subtitle1);
+            _secondaryFont = SkinManager.GetFontByType(MaterialSkinManager.FontType.Body1);
             SelectedIndex = -1;
             _hoveredItem = -1;
             _showScrollBar = false;
@@ -296,15 +279,22 @@ namespace MaterialSkin.Controls
             {
                 Controls.Add(_scrollBar);
             }
-
+            _primaryFont = SkinManager.GetFontByType(MaterialSkinManager.FontType.Subtitle1);
             Style = ListBoxStyle.SingleLine;
             Density = MaterialItemDensity.Dense;
+            ShowBorder = true;
+            ShowScrollBar = false;
+            MultiSelect = false;
+            UseAccentColor = false;
+            ForeColor = SkinManager.TextHighEmphasisColor; // Color.Black;
+            BackColor = Color.White;
+            BorderColor = Color.LightGray;
+            UpdateProperties();
         }
 
         #endregion Constructors
 
         #region ApplyTheme
-
 
         private void UpdateProperties()
         {
@@ -321,16 +311,16 @@ namespace MaterialSkin.Controls
                     _itemHeight = 60;
                     _secondaryTextBottomPadding = 10;
                     _primaryTextBottomPadding = 2;
-                    _primaryFont = SkinManager.getFontByType(MaterialSkinManager.fontType.Body1);
-                    _secondaryFont = SkinManager.getFontByType(MaterialSkinManager.fontType.Body2);
+                    _primaryFont = SkinManager.GetFontByType(MaterialSkinManager.FontType.Body1);
+                    _secondaryFont = SkinManager.GetFontByType(MaterialSkinManager.FontType.Body2);
                 }
                 else
                 {
                     _itemHeight = 72;
                     _secondaryTextBottomPadding = 16;
                     _primaryTextBottomPadding = 4;
-                    _primaryFont = SkinManager.getFontByType(MaterialSkinManager.fontType.Subtitle1);
-                    _secondaryFont = SkinManager.getFontByType(MaterialSkinManager.fontType.Body1);
+                    _primaryFont = SkinManager.GetFontByType(MaterialSkinManager.FontType.Subtitle1);
+                    _secondaryFont = SkinManager.GetFontByType(MaterialSkinManager.FontType.Body1);
                 }
             }
             else if (_style == ListBoxStyle.ThreeLine)
@@ -341,26 +331,31 @@ namespace MaterialSkin.Controls
                 {
                     _itemHeight = 76;
                     _secondaryTextBottomPadding = 16;
-                    _primaryFont = SkinManager.getFontByType(MaterialSkinManager.fontType.Body1);
-                    _secondaryFont = SkinManager.getFontByType(MaterialSkinManager.fontType.Body2);
+                    _primaryFont = SkinManager.GetFontByType(MaterialSkinManager.FontType.Body1);
+                    _secondaryFont = SkinManager.GetFontByType(MaterialSkinManager.FontType.Body2);
                 }
                 else
                 {
                     _itemHeight = 88;
                     _secondaryTextBottomPadding = 12;
-                    _primaryFont = SkinManager.getFontByType(MaterialSkinManager.fontType.Subtitle1);
-                    _secondaryFont = SkinManager.getFontByType(MaterialSkinManager.fontType.Body1);
+                    _primaryFont = SkinManager.GetFontByType(MaterialSkinManager.FontType.Subtitle1);
+                    _secondaryFont = SkinManager.GetFontByType(MaterialSkinManager.FontType.Body1);
                 }
             }
             else
             {
                 //SingleLine
                 if (_density == MaterialItemDensity.Dense)
+                {
                     _itemHeight = 40;
+                }
                 else
+                {
                     _itemHeight = 48;
-                _primaryFont = SkinManager.getFontByType(MaterialSkinManager.fontType.Subtitle1);
-                _secondaryFont = SkinManager.getFontByType(MaterialSkinManager.fontType.Body1);
+                }
+
+                _primaryFont = SkinManager.GetFontByType(MaterialSkinManager.FontType.Subtitle1);
+                _secondaryFont = SkinManager.GetFontByType(MaterialSkinManager.FontType.Body1);
             }
 
         }
@@ -371,7 +366,10 @@ namespace MaterialSkin.Controls
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            if (_updating == true) return;
+            if (_updating == true)
+            {
+                return;
+            }
 
             Graphics g = e.Graphics;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
@@ -396,11 +394,17 @@ namespace MaterialSkin.Controls
             }
 
             //Set color and brush
-            Color SelectedColor = new Color();
+            _ = new Color();
+            Color SelectedColor;
             if (UseAccentColor)
+            {
                 SelectedColor = SkinManager.ColorScheme.AccentColor;
+            }
             else
+            {
                 SelectedColor = SkinManager.ColorScheme.PrimaryColor;
+            }
+
             SolidBrush SelectedBrush = new SolidBrush(SelectedColor);
 
             //Draw items
@@ -442,7 +446,7 @@ namespace MaterialSkin.Controls
 
                 //Define primary & secondary Text Rect
                 Rectangle primaryTextRect = new Rectangle(itemRect.X + _leftrightPadding, itemRect.Y, itemRect.Width - (2 * _leftrightPadding), itemRect.Height);
-                Rectangle secondaryTextRect = new Rectangle();
+                _ = new Rectangle();
 
                 if (_style == ListBoxStyle.TwoLine)
                 {
@@ -459,7 +463,7 @@ namespace MaterialSkin.Controls
                         primaryTextRect.Height = 30 - _primaryTextBottomPadding;
                     }
                 }
-                secondaryTextRect = new Rectangle(primaryTextRect.X, primaryTextRect.Y + primaryTextRect.Height + (_primaryTextBottomPadding + _secondaryTextTopPadding), primaryTextRect.Width, _itemHeight - _secondaryTextBottomPadding - primaryTextRect.Height - (_primaryTextBottomPadding + _secondaryTextTopPadding));
+                Rectangle secondaryTextRect = new Rectangle(primaryTextRect.X, primaryTextRect.Y + primaryTextRect.Height + _primaryTextBottomPadding + _secondaryTextTopPadding, primaryTextRect.Width, _itemHeight - _secondaryTextBottomPadding - primaryTextRect.Height - (_primaryTextBottomPadding + _secondaryTextTopPadding));
 
                 using (NativeTextRenderer NativeText = new NativeTextRenderer(g))
                 {
@@ -515,7 +519,7 @@ namespace MaterialSkin.Controls
         public void AddItem(MaterialListBoxItem newItem)
         {
             _items.Add(newItem);
-            InvalidateScroll(this, null);
+            InvalidateScroll(this, EventArgs.Empty);
             ItemsCountChanged?.Invoke(this, new EventArgs());
         }
 
@@ -523,7 +527,7 @@ namespace MaterialSkin.Controls
         {
             MaterialListBoxItem _newitemMLBI = new MaterialListBoxItem(newItem);
             _items.Add(_newitemMLBI);
-            InvalidateScroll(this, null);
+            InvalidateScroll(this, EventArgs.Empty);
             ItemsCountChanged?.Invoke(this, new EventArgs());
         }
 
@@ -536,7 +540,7 @@ namespace MaterialSkin.Controls
             }
             _updating = false;
 
-            InvalidateScroll(this, null);
+            InvalidateScroll(this, EventArgs.Empty);
             ItemsCountChanged?.Invoke(this, new EventArgs());
         }
 
@@ -549,7 +553,7 @@ namespace MaterialSkin.Controls
             }
             _updating = false;
 
-            InvalidateScroll(this, null);
+            InvalidateScroll(this, EventArgs.Empty);
             ItemsCountChanged?.Invoke(this, new EventArgs());
         }
 
@@ -558,10 +562,10 @@ namespace MaterialSkin.Controls
            if (index<= _selectedIndex)
             {
                 _selectedIndex -=1;
-                update_selection();
+                Update_selection();
             }
             _items.RemoveAt(index);
-            InvalidateScroll(this, null);
+            InvalidateScroll(this, EventArgs.Empty);
             ItemsCountChanged?.Invoke(this, new EventArgs());
         }
 
@@ -570,10 +574,10 @@ namespace MaterialSkin.Controls
             if (_items.IndexOf(item)<= _selectedIndex)
             {
                 _selectedIndex -= 1;
-                update_selection();
+                Update_selection();
             }
             _items.Remove(item);
-            InvalidateScroll(this, null);
+            InvalidateScroll(this, EventArgs.Empty);
             ItemsCountChanged?.Invoke(this, new EventArgs());
         }
 
@@ -590,23 +594,23 @@ namespace MaterialSkin.Controls
                 if (_items.IndexOf(item) <= _selectedIndex)
                 {
                     _selectedIndex -= 1;
-                    update_selection();
+                    Update_selection();
                 }
                 _items.Remove(item);
             }
             _updating = false;
 
-            InvalidateScroll(this, null);
+            InvalidateScroll(this, EventArgs.Empty);
             ItemsCountChanged?.Invoke(this, new EventArgs());
         }
 
-        private void update_selection()
+        private void Update_selection()
         {
-            if (_selectedIndex >= 0)
+            if (_selectedIndex is int newIndex && newIndex >= 0)
             {
-                _selectedItem = _items[_selectedIndex];
-                _selectedValue = _items[_selectedIndex];
-                _selectedText = _items[_selectedIndex].ToString();
+                _selectedItem = _items[newIndex];
+                _selectedValue = _items[newIndex];
+                _selectedText = _items[newIndex].ToString();
             }
             else
             {
@@ -625,9 +629,9 @@ namespace MaterialSkin.Controls
             }
             _updating = false;
             _selectedIndex = -1;
-            update_selection();
+            Update_selection();
 
-            InvalidateScroll(this, null);
+            InvalidateScroll(this, EventArgs.Empty);
             ItemsCountChanged?.Invoke(this, new EventArgs());
         }
 
@@ -647,19 +651,19 @@ namespace MaterialSkin.Controls
 
         [Category("Behavior")]
         [Description("Occurs when selected index change.")]
-        public event SelectedIndexChangedEventHandler SelectedIndexChanged;
+        public event SelectedIndexChangedEventHandler? SelectedIndexChanged;
 
-        public delegate void SelectedIndexChangedEventHandler(object sender, MaterialListBoxItem selectedItem);
+        public delegate void SelectedIndexChangedEventHandler(object? sender, MaterialListBoxItem selectedItem);
 
         [Category("Behavior")]
         [Description("Occurs when selected value change.")]
-        public event SelectedValueEventHandler SelectedValueChanged;
+        public event SelectedValueEventHandler? SelectedValueChanged;
 
-        public delegate void SelectedValueEventHandler(object sender, MaterialListBoxItem selectedItem);
+        public delegate void SelectedValueEventHandler(object? sender, MaterialListBoxItem selectedItem);
 
         [Category("Behavior")]
         [Description("Occurs when item is added or removed.")]
-        public event EventHandler ItemsCountChanged;
+        public event EventHandler? ItemsCountChanged;
 
         #endregion Events
 
@@ -681,12 +685,12 @@ namespace MaterialSkin.Controls
                     if (MultiSelect && _multiKeyDown)
                     {
                         _indicates.Add(index);
-                        _selectedItems.Add(Items[index]);
+                        _selectedItems?.Add(Items[index]);
                     }
                     else
                     {
                         _indicates.Clear();
-                        _selectedItems.Clear();
+                        _selectedItems?.Clear();
                         _selectedItem = Items[index];
                         _selectedIndex = index;
                         _selectedValue = Items[index];
@@ -700,13 +704,17 @@ namespace MaterialSkin.Controls
             base.OnMouseDown(e);
         }
 
-        private void HandleScroll(object sender, ScrollEventArgs e)
+        private void HandleScroll(object? sender, ScrollEventArgs e)
         {
-            if (_scrollBar.Maximum < _scrollBar.Value + Height) _scrollBar.Value = _scrollBar.Maximum - Height;
+            if (_scrollBar.Maximum < _scrollBar.Value + Height)
+            {
+                _scrollBar.Value = _scrollBar.Maximum - Height;
+            }
+
             Invalidate();
         }
 
-        private void InvalidateScroll(object sender, EventArgs e)
+        private void InvalidateScroll(object? sender, EventArgs e)
         {
             _scrollBar.Maximum = _items.Count * _itemHeight;
             _scrollBar.SmallChange = _itemHeight;
@@ -717,7 +725,7 @@ namespace MaterialSkin.Controls
             Invalidate();
         }
 
-        private void VS_MouseDown(object sender, MouseEventArgs e)
+        private void VS_MouseDown(object? sender, MouseEventArgs e)
         {
             Focus();
         }
@@ -734,18 +742,24 @@ namespace MaterialSkin.Controls
             if (_scrollBar.Visible == true)
             {
                 if (_scrollBar.Minimum > _scrollBar.Value - e.Delta / 2)
+                {
                     _scrollBar.Value = _scrollBar.Minimum;
+                }
                 else if (_scrollBar.Maximum < _scrollBar.Value + Height)
                 {
                     if (e.Delta>0)
+                    {
                         _scrollBar.Value -= e.Delta / 2;
+                    }
                     else
                     { } //Do nothing, maximum reached
                 }
                 else
+                {
                     _scrollBar.Value -= e.Delta / 2;
+                }
 
-                _updateHoveredItem(e);
+                UpdateHoveredItem(e);
 
                 Invalidate();
                 base.OnMouseWheel(e);
@@ -791,12 +805,12 @@ namespace MaterialSkin.Controls
         {
             base.OnMouseMove(e);
             Cursor = Cursors.Hand;
-            _updateHoveredItem(e);
+            UpdateHoveredItem(e);
 
             Invalidate();
         }
 
-        private void _updateHoveredItem(MouseEventArgs e)
+        private void UpdateHoveredItem(MouseEventArgs e)
         {
             int index = _scrollBar.Value / _itemHeight + e.Location.Y / _itemHeight;
 
@@ -831,11 +845,11 @@ namespace MaterialSkin.Controls
         public const int WM_SETCURSOR = 0x0020;
         public const int IDC_HAND = 32649;
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr LoadCursor(IntPtr hInstance, int lpCursorName);
+        [LibraryImport("user32.dll", EntryPoint = "LoadCursorA", SetLastError = true)]
+        public static partial IntPtr LoadCursor(IntPtr hInstance, int lpCursorName);
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SetCursor(IntPtr hCursor);
+        [LibraryImport("user32.dll", EntryPoint = "SetCursor")]
+        private static partial IntPtr SetCursor(IntPtr hCursor);
 
         protected override void WndProc(ref Message m)
         {
@@ -848,7 +862,4 @@ namespace MaterialSkin.Controls
             base.WndProc(ref m);
         }
     }
-
-    #endregion
-
 }

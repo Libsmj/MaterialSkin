@@ -1,5 +1,6 @@
 ﻿namespace MaterialSkin.Controls
 {
+    using MaterialSkin;
     using MaterialSkin.Animations;
     using System;
     using System.Collections.Generic;
@@ -12,12 +13,14 @@
     public class MaterialTabSelector : Control, IMaterialControl
     {
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Depth { get; set; }
 
         [Browsable(false)]
         public MaterialSkinManager SkinManager => MaterialSkinManager.Instance;
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MouseState MouseState { get; set; }
 
         //[Browsable(false)]
@@ -33,18 +36,22 @@
             Proper
         }
 
-        TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+        readonly TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
 
         private MaterialTabControl _baseTabControl;
 
         [Category("Material Skin"), Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MaterialTabControl BaseTabControl
         {
             get { return _baseTabControl; }
             set
             {
                 _baseTabControl = value;
-                if (_baseTabControl == null) return;
+                if (_baseTabControl == null)
+                {
+                    return;
+                }
 
                 UpdateTabRects();
 
@@ -88,6 +95,7 @@
         private CustomCharacterCasing _characterCasing;
 
         [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public CustomCharacterCasing CharacterCasing
         {
             get => _characterCasing;
@@ -107,7 +115,9 @@
             set
             {
                 if (value < 1)
-                    throw new ArgumentOutOfRangeException("Tab Indicator Height", value, "Value should be > 0");
+                {
+                    throw new ArgumentOutOfRangeException(nameof(TabIndicatorHeight), value, "Value should be > 0");
+                }
                 else
                 {
                     _tab_indicator_height = value;
@@ -132,14 +142,18 @@
             {
                 _tabLabel = value;
                 if (_tabLabel == TabLabelStyle.IconAndText)
+                {
                     Height = 72;
+                }
                 else
+                {
                     Height = 48;
+                }
+
                 UpdateTabRects();
                 Invalidate();
             }
         }
-
 
         public MaterialTabSelector()
         {
@@ -160,28 +174,33 @@
         protected override void OnCreateControl()
         {
             base.OnCreateControl();
-            Font = SkinManager.getFontByType(MaterialSkinManager.fontType.Body1);
+            Font = SkinManager.GetFontByType(MaterialSkinManager.FontType.Body1);
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            var g = e.Graphics;
+            Graphics g = e.Graphics;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
             g.Clear(SkinManager.ColorScheme.PrimaryColor);
 
-            if (_baseTabControl == null) return;
+            if (_baseTabControl == null)
+            {
+                return;
+            }
 
             if (!_animationManager.IsAnimating() || _tabRects == null || _tabRects.Count != _baseTabControl.TabCount)
+            {
                 UpdateTabRects();
+            }
 
-            var animationProgress = _animationManager.GetProgress();
+            double animationProgress = _animationManager.GetProgress();
 
             //Click feedback
-            if (_animationManager.IsAnimating())
+            if (_animationManager.IsAnimating() && _tabRects != null)
             {
-                var rippleBrush = new SolidBrush(Color.FromArgb((int)(51 - (animationProgress * 50)), Color.White));
-                var rippleSize = (int)(animationProgress * _tabRects[_baseTabControl.SelectedIndex].Width * 1.75);
+                SolidBrush rippleBrush = new SolidBrush(Color.FromArgb((int)(51 - (animationProgress * 50)), Color.White));
+                int rippleSize = (int)(animationProgress * _tabRects[_baseTabControl.SelectedIndex].Width * 1.75);
 
                 g.SetClip(_tabRects[_baseTabControl.SelectedIndex]);
                 g.FillEllipse(rippleBrush, new Rectangle(_animationSource.X - rippleSize / 2, _animationSource.Y - rippleSize / 2, rippleSize, rippleSize));
@@ -190,7 +209,7 @@
             }
 
             //Draw tab headers
-            if (_tab_over_index >= 0)
+            if (_tab_over_index >= 0 && _tabRects != null)
             { 
                 //Change mouse over tab background color
                 g.FillRectangle(SkinManager.BackgroundHoverBrush , _tabRects[_tab_over_index].X, _tabRects[_tab_over_index].Y , _tabRects[_tab_over_index].Width, _tabRects[_tab_over_index].Height - _tab_indicator_height);
@@ -198,15 +217,15 @@
 
             foreach (TabPage tabPage in _baseTabControl.TabPages)
             {
-                var currentTabIndex = _baseTabControl.TabPages.IndexOf(tabPage);
+                int currentTabIndex = _baseTabControl.TabPages.IndexOf(tabPage);
 
-                if (_tabLabel != TabLabelStyle.Icon)
+                if (_tabLabel != TabLabelStyle.Icon && _tabRects != null)
                 {
                     // Text
                     using (NativeTextRenderer NativeText = new NativeTextRenderer(g))
                     {
                         Size textSize = TextRenderer.MeasureText(_baseTabControl.TabPages[currentTabIndex].Text, Font);
-                        Rectangle textLocation = new Rectangle(_tabRects[currentTabIndex].X+ (TAB_HEADER_PADDING/2), _tabRects[currentTabIndex].Y, _tabRects[currentTabIndex].Width - (TAB_HEADER_PADDING), _tabRects[currentTabIndex].Height);
+                        Rectangle textLocation = new Rectangle(_tabRects[currentTabIndex].X+ (TAB_HEADER_PADDING/2), _tabRects[currentTabIndex].Y, _tabRects[currentTabIndex].Width - TAB_HEADER_PADDING, _tabRects[currentTabIndex].Height);
 
                         if (_tabLabel == TabLabelStyle.IconAndText)
                         {
@@ -214,7 +233,7 @@
                             textLocation.Height = 10;
                         }
 
-                        if (((TAB_HEADER_PADDING*2) + textSize.Width < TAB_WIDTH_MAX))
+                        if ((TAB_HEADER_PADDING*2) + textSize.Width < TAB_WIDTH_MAX)
                         {
                             NativeText.DrawTransparentText(
                             CharacterCasing == CustomCharacterCasing.Upper ? tabPage.Text.ToUpper() :
@@ -237,7 +256,7 @@
                             CharacterCasing == CustomCharacterCasing.Upper ? tabPage.Text.ToUpper() :
                             CharacterCasing == CustomCharacterCasing.Lower ? tabPage.Text.ToLower() :
                             CharacterCasing == CustomCharacterCasing.Proper ? textInfo.ToTitleCase(tabPage.Text.ToLower()) : tabPage.Text,
-                            SkinManager.getFontByType(MaterialSkinManager.fontType.Body2),
+                            SkinManager.GetFontByType(MaterialSkinManager.FontType.Body2),
                             Color.FromArgb(CalculateTextAlpha(currentTabIndex, animationProgress), SkinManager.ColorScheme.TextColor),
                             textLocation.Location,
                             textLocation.Size,
@@ -249,7 +268,7 @@
                 if (_tabLabel != TabLabelStyle.Text)
                 {
                     // Icons
-                    if (_baseTabControl.ImageList != null && (!String.IsNullOrEmpty(tabPage.ImageKey) | tabPage.ImageIndex > -1))
+                    if (_tabRects != null && _baseTabControl.ImageList != null && (!string.IsNullOrEmpty(tabPage.ImageKey) | tabPage.ImageIndex > -1))
                     {
                         Rectangle iconRect = new Rectangle(
                             _tabRects[currentTabIndex].X + (_tabRects[currentTabIndex].Width / 2) - (ICON_SIZE / 2),
@@ -259,21 +278,27 @@
                         {
                             iconRect.Y = 12;
                         }
-                        g.DrawImage(!String.IsNullOrEmpty(tabPage.ImageKey) ? _baseTabControl.ImageList.Images[tabPage.ImageKey]: _baseTabControl.ImageList.Images[tabPage.ImageIndex], iconRect);
+                        Image? image = !string.IsNullOrEmpty(tabPage.ImageKey) ? _baseTabControl.ImageList.Images[tabPage.ImageKey] : _baseTabControl.ImageList.Images[tabPage.ImageIndex];
+                        if (image != null) {
+                            g.DrawImage(image, iconRect);
+                        }
                     }
                 }
            }
 
-            //Animate tab indicator
-            var previousSelectedTabIndexIfHasOne = _previousSelectedTabIndex == -1 ? _baseTabControl.SelectedIndex : _previousSelectedTabIndex;
-            var previousActiveTabRect = _tabRects[previousSelectedTabIndexIfHasOne];
-            var activeTabPageRect = _tabRects[_baseTabControl.SelectedIndex];
+            if (_tabRects != null)
+            {
+                //Animate tab indicator
+                int previousSelectedTabIndexIfHasOne = _previousSelectedTabIndex == -1 ? _baseTabControl.SelectedIndex : _previousSelectedTabIndex;
+                Rectangle previousActiveTabRect = _tabRects[previousSelectedTabIndexIfHasOne];
+                Rectangle activeTabPageRect = _tabRects[_baseTabControl.SelectedIndex];
 
-            var y = activeTabPageRect.Bottom - _tab_indicator_height;
-            var x = previousActiveTabRect.X + (int)((activeTabPageRect.X - previousActiveTabRect.X) * animationProgress);
-            var width = previousActiveTabRect.Width + (int)((activeTabPageRect.Width - previousActiveTabRect.Width) * animationProgress);
+                int y = activeTabPageRect.Bottom - _tab_indicator_height;
+                int x = previousActiveTabRect.X + (int)((activeTabPageRect.X - previousActiveTabRect.X) * animationProgress);
+                int width = previousActiveTabRect.Width + (int)((activeTabPageRect.Width - previousActiveTabRect.Width) * animationProgress);
 
-            g.FillRectangle(SkinManager.ColorScheme.AccentBrush, x, y, width, _tab_indicator_height);
+                g.FillRectangle(SkinManager.ColorScheme.AccentBrush, x, y, width, _tab_indicator_height);
+            }
         }
 
         private int CalculateTextAlpha(int tabIndex, double animationProgress)
@@ -300,8 +325,12 @@
         {
             base.OnMouseUp(e);
 
-            if (_tabRects == null) UpdateTabRects();
-            for (var i = 0; i < _tabRects.Count; i++)
+            if (_tabRects == null)
+            {
+                UpdateTabRects();
+            }
+
+            for (int i = 0; i < _tabRects?.Count; i++)
             {
                 if (_tabRects[i].Contains(e.Location))
                 {
@@ -317,14 +346,18 @@
             base.OnMouseMove(e);
 
             if (DesignMode)
+            {
                 return;
+            }
 
             if (_tabRects == null)
+            {
                 UpdateTabRects();
+            }
 
             int old_tab_over_index = _tab_over_index;
             _tab_over_index = -1;
-            for (var i = 0; i < _tabRects.Count; i++)
+            for (int i = 0; i < _tabRects?.Count; i++)
             {
                 if (_tabRects[i].Contains(e.Location))
                 {
@@ -334,19 +367,28 @@
                 }
             }
             if (_tab_over_index == -1)
+            {
                 Cursor = Cursors.Arrow;
+            }
+
             if (old_tab_over_index != _tab_over_index)
+            {
                 Invalidate();
+            }
         }
 
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
             if (DesignMode)
+            {
                 return;
+            }
 
             if (_tabRects == null)
+            {
                 UpdateTabRects();
+            }
 
             Cursor = Cursors.Arrow;
             _tab_over_index = -1;
@@ -359,30 +401,44 @@
 
             //If there isn't a base tab control, the rects shouldn't be calculated
             //If there aren't tab pages in the base tab control, the list should just be empty which has been set already; exit the void
-            if (_baseTabControl == null || _baseTabControl.TabCount == 0) return;
+            if (_baseTabControl == null || _baseTabControl.TabCount == 0)
+            {
+                return;
+            }
 
             //Calculate the bounds of each tab header specified in the base tab control
-            using (var b = new Bitmap(1, 1))
+            using (Bitmap b = new Bitmap(1, 1))
             {
-                using (var g = Graphics.FromImage(b))
+                using (Graphics g = Graphics.FromImage(b))
                 {
                     using (NativeTextRenderer NativeText = new NativeTextRenderer(g))
                     {
                         for (int i = 0; i < _baseTabControl.TabPages.Count; i++)
                         {
                             Size textSize = TextRenderer.MeasureText(_baseTabControl.TabPages[i].Text, Font);
-                            if (_tabLabel == TabLabelStyle.Icon) textSize.Width = ICON_SIZE;
+                            if (_tabLabel == TabLabelStyle.Icon)
+                            {
+                                textSize.Width = ICON_SIZE;
+                            }
 
                             int TabWidth = (TAB_HEADER_PADDING * 2) + textSize.Width;
                             if (TabWidth > TAB_WIDTH_MAX)
+                            {
                                 TabWidth = TAB_WIDTH_MAX;
+                            }
                             else if (TabWidth < TAB_WIDTH_MIN)
+                            {
                                 TabWidth = TAB_WIDTH_MIN;
+                            }
 
                             if (i==0)
-                                _tabRects.Add(new Rectangle(FIRST_TAB_PADDING - (TAB_HEADER_PADDING), 0, TabWidth, Height));
+                            {
+                                _tabRects.Add(new Rectangle(FIRST_TAB_PADDING - TAB_HEADER_PADDING, 0, TabWidth, Height));
+                            }
                             else
+                            {
                                 _tabRects.Add(new Rectangle(_tabRects[i - 1].Right, 0, TabWidth, Height));
+                            }
                         }
                     }
                 }

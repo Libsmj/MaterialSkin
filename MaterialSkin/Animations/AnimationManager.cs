@@ -44,7 +44,7 @@
         /// <summary>
         /// Defines the OnAnimationFinished
         /// </summary>
-        public event AnimationFinished OnAnimationFinished;
+        public event AnimationFinished? OnAnimationFinished;
 
         /// <summary>
         /// The AnimationProgress
@@ -55,7 +55,7 @@
         /// <summary>
         /// Defines the OnAnimationProgress
         /// </summary>
-        public event AnimationProgress OnAnimationProgress;
+        public event AnimationProgress? OnAnimationProgress;
 
         /// <summary>
         /// Defines the _animationProgresses
@@ -124,23 +124,23 @@
         /// </summary>
         /// <param name="sender">The sender<see cref="object"/></param>
         /// <param name="eventArgs">The eventArgs<see cref="EventArgs"/></param>
-        private void AnimationTimerOnTick(object sender, EventArgs eventArgs)
+        private void AnimationTimerOnTick(object? sender, EventArgs eventArgs)
         {
-            for (var i = 0; i < _animationProgresses.Count; i++)
+            for (int i = 0; i < _animationProgresses.Count; i++)
             {
                 UpdateProgress(i);
 
                 if (!Singular)
                 {
-                    if ((_animationDirections[i] == AnimationDirection.InOutIn && _animationProgresses[i] == MAX_VALUE))
+                    if (_animationDirections[i] == AnimationDirection.InOutIn && _animationProgresses[i] == MAX_VALUE)
                     {
                         _animationDirections[i] = AnimationDirection.InOutOut;
                     }
-                    else if ((_animationDirections[i] == AnimationDirection.InOutRepeatingIn && _animationProgresses[i] == MIN_VALUE))
+                    else if (_animationDirections[i] == AnimationDirection.InOutRepeatingIn && _animationProgresses[i] == MIN_VALUE)
                     {
                         _animationDirections[i] = AnimationDirection.InOutRepeatingOut;
                     }
-                    else if ((_animationDirections[i] == AnimationDirection.InOutRepeatingOut && _animationProgresses[i] == MIN_VALUE))
+                    else if (_animationDirections[i] == AnimationDirection.InOutRepeatingOut && _animationProgresses[i] == MIN_VALUE)
                     {
                         _animationDirections[i] = AnimationDirection.InOutRepeatingIn;
                     }
@@ -157,15 +157,15 @@
                 }
                 else
                 {
-                    if ((_animationDirections[i] == AnimationDirection.InOutIn && _animationProgresses[i] == MAX_VALUE))
+                    if (_animationDirections[i] == AnimationDirection.InOutIn && _animationProgresses[i] == MAX_VALUE)
                     {
                         _animationDirections[i] = AnimationDirection.InOutOut;
                     }
-                    else if ((_animationDirections[i] == AnimationDirection.InOutRepeatingIn && _animationProgresses[i] == MAX_VALUE))
+                    else if (_animationDirections[i] == AnimationDirection.InOutRepeatingIn && _animationProgresses[i] == MAX_VALUE)
                     {
                         _animationDirections[i] = AnimationDirection.InOutRepeatingOut;
                     }
-                    else if ((_animationDirections[i] == AnimationDirection.InOutRepeatingOut && _animationProgresses[i] == MIN_VALUE))
+                    else if (_animationDirections[i] == AnimationDirection.InOutRepeatingOut && _animationProgresses[i] == MIN_VALUE)
                     {
                         _animationDirections[i] = AnimationDirection.InOutRepeatingIn;
                     }
@@ -189,7 +189,7 @@
         /// </summary>
         /// <param name="animationDirection">The animationDirection<see cref="AnimationDirection"/></param>
         /// <param name="data">The data<see cref="object[]"/></param>
-        public void StartNewAnimation(AnimationDirection animationDirection, object[] data = null)
+        public void StartNewAnimation(AnimationDirection animationDirection, object[]? data = null)
         {
             StartNewAnimation(animationDirection, new Point(0, 0), data);
         }
@@ -200,7 +200,7 @@
         /// <param name="animationDirection">The animationDirection<see cref="AnimationDirection"/></param>
         /// <param name="animationSource">The animationSource<see cref="Point"/></param>
         /// <param name="data">The data<see cref="object[]"/></param>
-        public void StartNewAnimation(AnimationDirection animationDirection, Point animationSource, object[] data = null)
+        public void StartNewAnimation(AnimationDirection animationDirection, Point animationSource, object[]? data = null)
         {
             if (!IsAnimating() || InterruptAnimation)
             {
@@ -224,7 +224,7 @@
 
                 if (!(Singular && _animationProgresses.Count > 0))
                 {
-                    switch (_animationDirections[_animationDirections.Count - 1])
+                    switch (_animationDirections[^1])
                     {
                         case AnimationDirection.InOutRepeatingIn:
                         case AnimationDirection.InOutIn:
@@ -245,11 +245,11 @@
 
                 if (Singular && _animationDatas.Count > 0)
                 {
-                    _animationDatas[0] = data ?? new object[] { };
+                    _animationDatas[0] = data ?? Array.Empty<object>();
                 }
                 else
                 {
-                    _animationDatas.Add(data ?? new object[] { });
+                    _animationDatas.Add(data ?? Array.Empty<object>());
                 }
             }
 
@@ -336,7 +336,7 @@
             {
                 _animationProgresses[index] = MIN_VALUE;
 
-                for (var i = 0; i < GetAnimationCount(); i++)
+                for (int i = 0; i < GetAnimationCount(); i++)
                 {
                     if (_animationDirections[i] == AnimationDirection.InOutIn)
                     {

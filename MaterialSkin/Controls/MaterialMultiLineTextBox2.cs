@@ -3,6 +3,7 @@ namespace MaterialSkin.Controls
 {
     using System;
     using System.ComponentModel;
+    using System.Diagnostics.CodeAnalysis;
     using System.Drawing;
     using System.Runtime.InteropServices;
     using System.Windows.Forms;
@@ -11,43 +12,50 @@ namespace MaterialSkin.Controls
     public class MaterialMultiLineTextBox2 : Control, IMaterialControl
     {
 
-        MaterialContextMenuStrip cms = new BaseTextBoxContextMenuStrip();
+        readonly MaterialContextMenuStrip cms = new BaseTextBoxContextMenuStrip();
         ContextMenuStrip _lastContextMenuStrip = new ContextMenuStrip();
 
         //Properties for managing the material design properties
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int Depth { get; set; }
 
         [Browsable(false)]
         public MaterialSkinManager SkinManager => MaterialSkinManager.Instance;
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public MouseState MouseState { get; set; }
 
         //Unused properties
 
         [Browsable(false)]
-        public override System.Drawing.Image BackgroundImage { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public override Image? BackgroundImage { get; set; }
 
         [Browsable(false)]
-        public override System.Windows.Forms.ImageLayout BackgroundImageLayout { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public override ImageLayout BackgroundImageLayout { get; set; }
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public string SelectedText { get { return baseTextBox.SelectedText; } set { baseTextBox.SelectedText = value; } }
 
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int SelectionStart { get { return baseTextBox.SelectionStart; } set { baseTextBox.SelectionStart = value; } }
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int SelectionLength { get { return baseTextBox.SelectionLength; } set { baseTextBox.SelectionLength = value; } }
         [Browsable(false)]
         public int TextLength { get { return baseTextBox.TextLength; } }
 
         [Browsable(false)]
-        public override System.Drawing.Color ForeColor { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public override Color ForeColor { get; set; }
 
         //Material Skin properties
-
 
         [Category("Material Skin"), DefaultValue(""), Localizable(true)]
         public string Hint
@@ -64,17 +72,17 @@ namespace MaterialSkin.Controls
         [Category("Material Skin"), DefaultValue(true)]
         public bool UseAccent { get; set; }
 
-
-
         [Browsable(true)]
         [Category("Material Skin"), DefaultValue(true), Description("Defines whether MaterialMultiLineTextBox allows scrolling of text. This property is independent of the ScrollBars property")]
         public bool AllowScroll { get; set; }
 
+        //TextBox properties
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
 
         //TextBox properties
 
-        public override ContextMenuStrip ContextMenuStrip
+        public override ContextMenuStrip? ContextMenuStrip
         {
             get { return baseTextBox.ContextMenuStrip; }
             set
@@ -96,27 +104,36 @@ namespace MaterialSkin.Controls
         [Browsable(false)]
         public override Color BackColor { get { return Parent == null ? SkinManager.BackgroundColor : Parent.BackColor; } }
 
+        [AllowNull]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public override string Text { get { return baseTextBox.Text; } set { baseTextBox.Text = value; } }
 
         [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public HorizontalAlignment TextAlign { get { return baseTextBox.TextAlign; } set { baseTextBox.TextAlign = value; } }
 
         [Category("Appearance")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public ScrollBars ScrollBars { get { return baseTextBox.ScrollBars; } set { baseTextBox.ScrollBars = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public CharacterCasing CharacterCasing { get { return baseTextBox.CharacterCasing; } set { baseTextBox.CharacterCasing = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool HideSelection { get { return baseTextBox.HideSelection; } set { baseTextBox.HideSelection = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int MaxLength { get { return baseTextBox.MaxLength; } set { baseTextBox.MaxLength = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public char PasswordChar { get { return baseTextBox.PasswordChar; } set { baseTextBox.PasswordChar = value; } }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ShortcutsEnabled
         {
             get
@@ -138,12 +155,15 @@ namespace MaterialSkin.Controls
         }
 
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool UseSystemPasswordChar { get { return baseTextBox.UseSystemPasswordChar; } set { baseTextBox.UseSystemPasswordChar = value; } }
 
-        public new object Tag { get { return baseTextBox.Tag; } set { baseTextBox.Tag = value; } }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public new object? Tag { get { return baseTextBox.Tag; } set { baseTextBox.Tag = value; } }
 
         private bool _readonly;
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool ReadOnly
         {
             get { return _readonly; }
@@ -154,7 +174,7 @@ namespace MaterialSkin.Controls
                 {
                     baseTextBox.ReadOnly = _readonly;
                 }
-                this.Invalidate();
+                Invalidate();
             }
         }
 
@@ -162,6 +182,7 @@ namespace MaterialSkin.Controls
 
         [Category("Material Skin")]
         [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool AnimateReadOnly
         {
             get => _animateReadOnly;
@@ -204,7 +225,6 @@ namespace MaterialSkin.Controls
         public void Undo() { baseTextBox.Undo(); }
 
         public void Paste() { baseTextBox.Paste(); }
-
 
         #region Forwarding events to baseTextBox
 
@@ -1151,7 +1171,7 @@ namespace MaterialSkin.Controls
             baseTextBox = new BaseTextBox
             {
                 BorderStyle = BorderStyle.None,
-                Font = SkinManager.getFontByType(MaterialSkinManager.fontType.Subtitle1),
+                Font = SkinManager.GetFontByType(MaterialSkinManager.FontType.Subtitle1),
                 ForeColor = SkinManager.TextHighEmphasisColor,
                 Multiline = true
             };
@@ -1175,7 +1195,9 @@ namespace MaterialSkin.Controls
                     _animationManager.StartNewAnimation(AnimationDirection.In);
                 }
                 else
-                    base.Focus();
+                {
+                    Focus();
+                }
             };
             baseTextBox.LostFocus += (sender, args) =>
             {
@@ -1187,15 +1209,15 @@ namespace MaterialSkin.Controls
             baseTextBox.BackColorChanged += new EventHandler(Redraw);
 
             baseTextBox.TabStop = true;
-            this.TabStop = false;
+            TabStop = false;
 
             cms.Opening += ContextMenuStripOnOpening;
             cms.OnItemClickStart += ContextMenuStripOnItemClickStart;
             ContextMenuStrip = cms;
-            this.MouseWheel += OnMouseWheel;
+            MouseWheel += OnMouseWheel;
         }
 
-        private void Redraw(object sencer, EventArgs e)
+        private void Redraw(object? sencer, EventArgs e)
         {
             SuspendLayout();
             Invalidate();
@@ -1204,18 +1226,21 @@ namespace MaterialSkin.Controls
 
         protected override void OnPaint(PaintEventArgs pevent)
         {
-            var g = pevent.Graphics;
+            Graphics g = pevent.Graphics;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-            g.Clear(Parent.BackColor);
-            SolidBrush backBrush = new SolidBrush(DrawHelper.BlendColor(Parent.BackColor, SkinManager.BackgroundAlternativeColor, SkinManager.BackgroundAlternativeColor.A));
+            if (Parent != null)
+            {
+                g.Clear(Parent.BackColor);
+                SolidBrush backBrush = new SolidBrush(DrawHelper.BlendColor(Parent.BackColor, SkinManager.BackgroundAlternativeColor, SkinManager.BackgroundAlternativeColor.A));
 
-            //backColor
-            g.FillRectangle(
-                !Enabled ? SkinManager.BackgroundDisabledBrush : // Disabled
-                isFocused ? SkinManager.BackgroundFocusBrush :  // Focused
-                MouseState == MouseState.HOVER && (!ReadOnly || (ReadOnly && !AnimateReadOnly)) ? SkinManager.BackgroundHoverBrush : // Hover
-                backBrush, // Normal
-                ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, LINE_Y);
+                //backColor
+                g.FillRectangle(
+                    !Enabled ? SkinManager.BackgroundDisabledBrush : // Disabled
+                    isFocused ? SkinManager.BackgroundFocusBrush :  // Focused
+                    MouseState == MouseState.HOVER && (!ReadOnly || (ReadOnly && !AnimateReadOnly)) ? SkinManager.BackgroundHoverBrush : // Hover
+                    backBrush, // Normal
+                    ClientRectangle.X, ClientRectangle.Y, ClientRectangle.Width, LINE_Y);
+            }
 
             baseTextBox.BackColor = !Enabled ? ColorHelper.RemoveAlpha(SkinManager.BackgroundDisabledColor, BackColor) : //Disabled
                 isFocused ? DrawHelper.BlendColor(BackColor, SkinManager.BackgroundFocusColor, SkinManager.BackgroundFocusColor.A) : //Focused
@@ -1249,28 +1274,29 @@ namespace MaterialSkin.Controls
             }
         }
 
-
         [DllImport("User32.dll", CharSet = CharSet.Auto, EntryPoint = "SendMessage")]
         protected static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
-        protected void OnMouseWheel(object sender, MouseEventArgs e)
+        protected void OnMouseWheel(object? sender, MouseEventArgs e)
         {
             if (AllowScroll)
             {
                 if (DesignMode)
+                {
                     return;
+                }
                 //Calculate number of notches mouse wheel moved
                 int v = e.Delta / 120;
                 //Down Movement
                 if (v < 0)
                 {
-                    var ptrWparam = new IntPtr(SB_LINEDOWN);
+                    nint ptrWparam = new IntPtr(SB_LINEDOWN);
                     SendMessage(baseTextBox.Handle, WM_VSCROLL, ptrWparam, ptrLparam);
                 }
                 //Up Movement
                 else if (v > 0)
                 {
-                    var ptrWparam = new IntPtr(SB_LINEUP);
+                    nint ptrWparam = new IntPtr(SB_LINEUP);
                     SendMessage(baseTextBox.Handle, WM_VSCROLL, ptrWparam, ptrLparam);
                 }
 
@@ -1282,7 +1308,9 @@ namespace MaterialSkin.Controls
         protected override void OnMouseMove(MouseEventArgs e)
         {
             if (DesignMode)
+            {
                 return;
+            }
 
             base.OnMouseMove(e);
         }
@@ -1290,7 +1318,9 @@ namespace MaterialSkin.Controls
         protected override void OnMouseDown(MouseEventArgs e)
         {
             if (DesignMode)
+            {
                 return;
+            }
 
             baseTextBox?.Focus();
             base.OnMouseDown(e);
@@ -1299,7 +1329,9 @@ namespace MaterialSkin.Controls
         protected override void OnMouseEnter(EventArgs e)
         {
             if (DesignMode)
+            {
                 return;
+            }
 
             base.OnMouseEnter(e);
             MouseState = MouseState.HOVER;
@@ -1309,10 +1341,14 @@ namespace MaterialSkin.Controls
         protected override void OnMouseLeave(EventArgs e)
         {
             if (DesignMode)
+            {
                 return;
+            }
 
-            if (this.ClientRectangle.Contains(this.PointToClient(Control.MousePosition)))
+            if (ClientRectangle.Contains(PointToClient(MousePosition)))
+            {
                 return;
+            }
             else
             {
                 base.OnMouseLeave(e);
@@ -1343,7 +1379,7 @@ namespace MaterialSkin.Controls
 
         private void ContextMenuStripOnItemClickStart(object sender, ToolStripItemClickedEventArgs toolStripItemClickedEventArgs)
         {
-            switch (toolStripItemClickedEventArgs.ClickedItem.Text)
+            switch (toolStripItemClickedEventArgs.ClickedItem?.Text)
             {
                 case "Undo":
                     Undo();
@@ -1366,10 +1402,9 @@ namespace MaterialSkin.Controls
             }
         }
 
-        private void ContextMenuStripOnOpening(object sender, CancelEventArgs cancelEventArgs)
+        private void ContextMenuStripOnOpening(object? sender, CancelEventArgs cancelEventArgs)
         {
-            var strip = sender as BaseTextBoxContextMenuStrip;
-            if (strip != null)
+            if (sender is BaseTextBoxContextMenuStrip strip)
             {
                 strip.undo.Enabled = baseTextBox.CanUndo && !ReadOnly;
                 strip.cut.Enabled = !string.IsNullOrEmpty(SelectedText) && !ReadOnly;
@@ -1380,7 +1415,7 @@ namespace MaterialSkin.Controls
             }
         }
 
-        private void LeaveOnEnterKey_KeyDown(object sender, KeyEventArgs e)
+        private void LeaveOnEnterKey_KeyDown(object? sender, KeyEventArgs e)
         {
             if (e.KeyData == Keys.Enter && e.Control == false)
             {
